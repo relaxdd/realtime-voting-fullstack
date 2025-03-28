@@ -1,0 +1,117 @@
+{
+  "users": [
+    {
+      "id": "11i64d5LmRYqNMCX",
+      "login": "awenn2015",
+      "password": null,
+      "email": null,
+      "createdAt": "2025-03-26T01:30:00+03:00",
+      "updatedAt": "2025-03-26T01:30:00+03:00"
+    },
+    {
+      "id": "8dlx7ak38fd39dv7",
+      "login": "orinami1212",
+      "password": null,
+      "email": null,
+      "createdAt": "2025-03-26T01:30:00+03:00",
+      "updatedAt": "2025-03-26T01:30:00+03:00"
+    },
+    {
+      "id": "jd3kd03d0w9a0l35r",
+      "login": "udale0703",
+      "password": null,
+      "email": null,
+      "createdAt": "2025-03-26T01:30:00+03:00",
+      "updatedAt": "2025-03-26T01:30:00+03:00"
+    },
+    {
+      "id": "0hy894hf0dlkfh9o",
+      "login": "alonso1918",
+      "password": null,
+      "email": null,
+      "createdAt": "2025-03-26T01:30:00+03:00",
+      "updatedAt": "2025-03-26T01:30:00+03:00"
+    }
+  ],
+  "profiles": [
+    {
+      "id": "oFS3N2zFzGDNYBcz",
+      "telegramId": 2095337925,
+      "firstName": "Александр",
+      "lastName": "Антонов",
+      "avatarUrl": "https://t.me/i/userpic/320/x0F-otfy6etPbzieQF2EecFUQub3ykB472eGTTd1r0I.jpg",
+      "createdAt": "2025-03-26T16:50:00+03:00",
+      "updatedAt": "2025-03-26T16:50:00+03:00",
+      "userId": "11i64d5LmRYqNMCX"
+    }
+  ],
+  "voting": [
+    {
+      "id": "FoD4tp0spQreERPW",
+      "title": "Выбираем новое аниме",
+      "description": null,
+      "isActive": true,
+      "finishIn": null,
+      "createdAt": "2025-03-26T01:30:00+03:00",
+      "updatedAt": "2025-03-26T01:30:00+03:00",
+      "userId": "11i64d5LmRYqNMCX"
+    }
+  ],
+  "votingChoices": [
+    {
+      "id": "TFRGc5hetx8JVOtk",
+      "label": "САО Алисизация",
+      "value": "sao_alisizaciya",
+      "count": 115,
+      "createdAt": "2025-03-26T01:30:00+03:00",
+      "updatedAt": "2025-03-26T01:30:00+03:00",
+      "votingId": "FoD4tp0spQreERPW"
+    },
+    {
+      "id": "TBpf8RcnsDpzuZA9",
+      "label": "Мадока",
+      "value": "madoka",
+      "count": 13,
+      "createdAt": "2025-03-26T01:30:00+03:00",
+      "updatedAt": "2025-03-26T01:30:00+03:00",
+      "votingId": "FoD4tp0spQreERPW"
+    },
+    {
+      "id": "yhyKreltK08J68eD",
+      "label": "Агент времени",
+      "value": "agent_vremeni",
+      "count": 26,
+      "createdAt": "2025-03-26T01:30:00+03:00",
+      "updatedAt": "2025-03-26T01:30:00+03:00",
+      "votingId": "FoD4tp0spQreERPW"
+    },
+    {
+      "id": "SMpCSl5nf0u6SeNb",
+      "label": "НГНЛ",
+      "value": "ngnl",
+      "count": 40,
+      "createdAt": "2025-03-28T00:15:00+03:00",
+      "updatedAt": "2025-03-28T00:15:00+03:00",
+      "votingId": "FoD4tp0spQreERPW"
+    },
+    {
+      "id": "H3mY8DBCsVJwJhuQ",
+      "label": "K-ON",
+      "value": "k_on",
+      "count": 78,
+      "createdAt": "2025-03-26T01:30:00+03:00",
+      "updatedAt": "2025-03-26T01:30:00+03:00",
+      "votingId": "FoD4tp0spQreERPW"
+    },
+
+    {
+      "id": "VC5y56kKPqMhEwbO",
+      "label": "Шангри Ла",
+      "value": "shangri_la",
+      "count": 11,
+      "createdAt": "2025-03-26T01:30:00+03:00",
+      "updatedAt": "2025-03-26T01:30:00+03:00",
+      "votingId": "FoD4tp0spQreERPW"
+    }
+  ]
+}

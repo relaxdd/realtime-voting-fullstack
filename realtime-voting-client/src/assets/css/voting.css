@@ -1,0 +1,36 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.content {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+.circle-status {
+  display: inline-flex;
+  height: 0.625rem;
+  width: 0.625rem;
+  border-radius: 50%;
+
+  &[data-type="online"] {
+    background-color: green;
+  }
+
+  &[data-type="offline"] {
+    background-color: red;
+  }
+
+  &[data-type="reconnecting"] {
+    background-color: orange;
+  }
+}

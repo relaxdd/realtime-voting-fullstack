@@ -1,0 +1,78 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["relationJoins", "postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("PGSQL_URL")
+  extensions = [pgcrypto]
+}
+
+model User {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+
+  login    String  @unique @db.VarChar(191)
+  password String? @db.VarChar(255)
+  email    String? @db.VarChar(191)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  votings Voting[]
+  profile Profile?
+
+  @@map("users")
+}
+
+model Profile {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+
+  telegramId Int?    @map("telegram_id")
+  firstName  String? @map("first_name") @db.VarChar(191)
+  lastName   String? @map("last_name") @db.VarChar(191)
+  avatarUrl  String? @map("avatar_url") @db.VarChar(255)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  userId String @unique @map("user_id") @db.Uuid()
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@map("profiles")
+}
+
+model Voting {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+
+  title       String    @db.VarChar(191)
+  description String?   @db.VarChar(255)
+  isActive    Boolean   @default(true) @db.Boolean
+  finishIn    DateTime? @map("finish_in")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  userId String @map("user_id") @db.Uuid()
+  user   User   @relation(fields: [userId], references: [id])
+
+  choices VotingChoice[]
+
+  @@map("voting")
+}
+
+model VotingChoice {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
+
+  label String
+  value String
+  count Int    @default(0)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  votingId String @map("voting_id") @db.Uuid()
+  voting   Voting @relation(fields: [votingId], references: [id])
+
+  @@map("voting_choices")
+}

@@ -1,0 +1,67 @@
+schema {
+  query: Query
+}
+
+type Query {
+  hello: String!
+  firstUser: User
+  oneVoting(id: ID!): Voting
+  manyVoting(isActive: Boolean, limit: Int, paged: Int): [Voting!]!
+}
+
+enum AllowedColor {
+  RED
+  GREEN
+  BLUE
+}
+
+type User {
+  id: ID!
+  login: String!
+  email: String
+  createdAt: String!
+  updatedAt: String!
+  profile: Profile
+}
+
+type Profile {
+  id: ID!
+  telegramId: Int
+  firstName: String
+  lastName: String
+  avatarUrl: String
+  createdAt: String!
+  updatedAt: String!
+  userId: String!
+}
+
+type DateTime {
+  iso: String!
+  gmt: String!
+  pretty: String!
+}
+
+type Voting {
+  id: ID!
+  shortId: String!
+  title: String!
+  description: String
+  isActive: Boolean!
+  finishIn: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  authorId: String!
+  author: User!
+  choices: [VotingChoice!]
+  votesNumber: Int!
+}
+
+type VotingChoice {
+  id: ID!
+  label: String!
+  value: String!
+  count: Int!
+  createdAt: String!
+  updatedAt: String!
+  votingId: ID!
+}

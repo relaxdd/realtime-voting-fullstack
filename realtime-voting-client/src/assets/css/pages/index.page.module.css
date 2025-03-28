@@ -1,0 +1,24 @@
+.wrapper {
+  display: grid;
+  grid-auto-flow: dense;
+  grid-template-columns: 3fr 1fr;
+  grid-template-areas: 'content sidebar';
+  grid-column-gap: 1.5rem;
+}
+
+.content {
+  grid-area: content;
+}
+
+.sidebar {
+  grid-area: sidebar;
+}
+
+@media (max-width: 575px) {
+  .wrapper {
+    grid-template-columns: 1fr;
+    grid-row-gap: 1.25rem;
+    grid-template-areas: 'sidebar'
+                         'content';
+  }
+}

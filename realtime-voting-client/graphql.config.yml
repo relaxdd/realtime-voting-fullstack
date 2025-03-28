@@ -1,0 +1,8 @@
+schema: schema.gql
+documents: src/gql/**/*.ts
+projects:
+  awenn-voting:
+    schemaPath: schema.gql
+    extensions:
+      endpoints:
+        default: http://localhost:4242/api/graphql
