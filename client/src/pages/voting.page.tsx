@@ -1,10 +1,10 @@
 import '../assets/css/voting.css';
 import { Button } from '@/components/ui/button.tsx';
 import { Card, CardContent, CardFooter } from '@/components/ui/card.tsx';
-import { GetVotingByIdDocument } from '@/gql/generated.ts';
+import { GetVotingByIdDocument } from '@/graphql/generated.ts';
+import BackwardHeader from '@/components/backward-header.tsx';
 import WsEventService from '@/shared/services/WsEventService.ts';
 import { useQuery } from '@apollo/client';
-import { LucideArrowLeft } from 'lucide-react';
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { getPercent, numDeclinePeople, numDeclineVotes } from '@/shared/helpers.ts';
 import { Progress } from '@/components/ui/progress.tsx';
@@ -29,7 +29,7 @@ const VotingPage = () => {
   }, [data]);
   
   const total = useMemo(() => {
-    return choices.reduce((acc, it) => acc + it.count, 0);
+    return choices.reduce((acc, it) => acc + it.votes, 0);
   }, [choices]);
   
   function onSubmitHandler(e: FormEvent<HTMLFormElement>) {
@@ -82,13 +82,8 @@ const VotingPage = () => {
   if (data.oneVoting === null) return <Navigate to="/" />;
   
   return (
-    <div className="pb-6">
-      <header className="mt-3 mb-4">
-        <div className="flex items-center my-0 gap-x-3">
-          <Link to="/"><LucideArrowLeft /></Link>
-          <h1 className="m-0! leading-[1.2]">{data.oneVoting?.title}</h1>
-        </div>
-      </header>
+    <>
+      <BackwardHeader title={data.oneVoting?.title} />
       
       {data.oneVoting?.description && (
         <p>{data.oneVoting.description}</p>
@@ -127,11 +122,11 @@ const VotingPage = () => {
             <Card className="w-[100%] md:w-[300px]">
               <CardContent className="flex flex-col gap-y-4">
                 {choices.map((it) => {
-                  const percent = getPercent(it.count, total);
+                  const percent = getPercent(it.votes, total);
                   
                   return (
                     <div className="grid w-full gap-y-2.5" key={it.id}>
-                      <Label title={numDeclineVotes(it.count)}>{it.label} - {percent}%</Label>
+                      <Label title={numDeclineVotes(it.votes)}>{it.label} - {percent}%</Label>
                       <Progress value={percent} max={100} />
                     </div>
                   );
@@ -153,10 +148,10 @@ const VotingPage = () => {
             </div>
           </div>
           
-         
+          <Link to={`/${params.id!}/edit`}>Редактировать</Link>
         </>
       )}
-    </div>
+    </>
   );
 };
 

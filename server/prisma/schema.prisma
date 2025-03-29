@@ -46,6 +46,7 @@ model Profile {
 model Voting {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid()
 
+  shortId     String    @db.VarChar(20)
   title       String    @db.VarChar(191)
   description String?   @db.VarChar(255)
   isActive    Boolean   @default(true) @db.Boolean
@@ -68,7 +69,7 @@ model Choice {
 
   label String
   value String
-  count Int    @default(0)
+  votes Int    @default(0)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")

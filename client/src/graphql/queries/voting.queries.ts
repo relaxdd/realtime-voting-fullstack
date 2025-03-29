@@ -13,7 +13,7 @@ const votingChoiceSchema = z.object({
   id: z.string(),
   label: z.string(),
   value: z.string(),
-  count: z.number().int(),
+  votes: z.number().int(),
   createdAt: z.string().optional(),
   updatedAt: z.string().optional(),
   votingId: z.string().optional(),
@@ -38,9 +38,10 @@ const votingSchema = z.object({
  */
 
 export const getAllActiveVotingQuery = gql`
-  query getAllActiveVoting {
-    manyVoting(isActive: true) {
+  query GetAllActiveVoting($search: String) {
+    manyVoting(isActive: true, search: $search) {
       id
+      shortId
       title
       description
       isActive
@@ -57,11 +58,12 @@ export const getAllActiveVotingQuery = gql`
 export const getAllActiveVotingSchema = z.array(votingSchema.pick({
   id: true,
   title: true,
-  description: true,
+  shortId: true,
   isActive: true,
   authorId: true,
-  votesNumber: true,
   createdAt: true,
+  description: true,
+  votesNumber: true,
 }));
 
 /*
@@ -69,7 +71,7 @@ export const getAllActiveVotingSchema = z.array(votingSchema.pick({
  */
 
 export const getVotingByIdQuery = gql`
-  query getVotingById($id: ID!) {
+  query GetVotingById($id: ID!) {
     oneVoting(id: $id) {
       id
       title
@@ -80,7 +82,7 @@ export const getVotingByIdQuery = gql`
         id
         label
         value
-        count
+        votes
       }
     }
   }

@@ -23,5 +23,5 @@ dist-ssr
 *.sln
 *.sw?
 
-schema.gql
-src/gql/generated.ts
+schema.(gql|graphql)
+src/graphql/generated.ts

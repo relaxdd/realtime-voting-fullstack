@@ -7,6 +7,7 @@ const config: CodegenConfig = {
     'src/**/*.ts',
     'src/**/*.tsx',
     'src/**/*.gql',
+    'src/**/*.graphql',
   ],
   generates: {
   

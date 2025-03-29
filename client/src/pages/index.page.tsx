@@ -1,21 +1,37 @@
 import { Card, CardContent, CardHeader } from '@/components/ui/card.tsx';
-import { Separator } from '@/components/ui/separator.tsx';
-import { GetAllActiveVotingDocument } from '@/gql/generated.ts';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select.tsx';
+import { GetAllActiveVotingDocument } from '@/graphql/generated.ts';
+import { useAppGlobalContext } from '@/providers/app-global.provider.tsx';
 import { TimeConst } from '@/shared/defines.ts';
 import { numDeclineVotes } from '@/shared/helpers.ts';
+import language from '@/shared/language.ts';
 import { useQuery } from '@apollo/client';
-import { Link } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 import css from '@/assets/css/pages/index.page.module.css';
 
 const IndexPage = () => {
-  const { loading, data, error } = useQuery(GetAllActiveVotingDocument, { pollInterval: TimeConst.minute / 2 });
+  const [{ lang }] = useAppGlobalContext();
+  const [searchParams] = useSearchParams();
+  
+  const { loading, data, error } = useQuery(GetAllActiveVotingDocument, {
+    pollInterval: TimeConst.minute / 2,
+    ...(searchParams.has('s') ? { variables: { search: searchParams.get('s') } } : {}),
+  });
   
   if (loading) return <h1>Loading data...</h1>;
   if (error || !data) return <div style={{ marginTop: '0.67em' }}><p>Something went wrong.</p></div>;
   
   return (
     <main role="main">
-      <h1>Hello world!</h1>
+      <h1 className="mt-0! mb-7! leading-[1.2]">{language.allVoting[lang]}</h1>
       
       <div className={css.wrapper}>
         <div className={css.content}>
@@ -26,7 +42,7 @@ const IndexPage = () => {
                   <CardContent>
                     <header className="flex justify-between">
                       <Link
-                        to={String(post.id)}
+                        to={String(post.shortId)}
                         className="inline-block hover:opacity-70"
                       >
                         <h2>{post.title}</h2>
@@ -35,16 +51,14 @@ const IndexPage = () => {
                       <small>{numDeclineVotes(post.votesNumber)}</small>
                     </header>
                     
-                    {post.description && (
-                      <>
-                        <Separator className="my-2" />
-                        <p>{post.description}</p>
-                      </>
-                    )}
+                    <div>
+                      <small className="inline-block mt-3">
+                        <span>{language.published[lang]}</span>:{' '}
+                        <time dateTime={post.createdAt.date}>{post.createdAt.pretty}</time>
+                      </small>
+                    </div>
                     
-                    <small className="inline-block mt-3">
-                      Опубликовано: <time dateTime={post.createdAt.date}>{post.createdAt.pretty}</time>
-                    </small>
+                    <div><small>@awenn2015</small> <small>#аниме #разное</small></div>
                   </CardContent>
                 </Card>
               </article>
@@ -55,7 +69,49 @@ const IndexPage = () => {
         <div className={css.sidebar}>
           <Card className="py-5">
             <CardHeader>
-              <h2>Сайдбар</h2>
+              <div className="mb-3">
+                <h2>{language.sidebar[lang]}</h2>
+                <Link to="/post"><small>{language.createNewVoting[lang]}</small></Link>
+              </div>
+              
+              <div className="mb-3">
+                <h2>Популярные теги</h2>
+                <small>#аниме #разное #кулинария</small>
+              </div>
+              
+              <div>
+                <h2 className="mb-2">Категория</h2>
+                
+                <Select defaultValue="est">
+                  <SelectTrigger className="w-[100%]">
+                    <SelectValue placeholder="Select a timezone" />
+                  </SelectTrigger>
+                  
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>North America</SelectLabel>
+                      <SelectItem value="est">Eastern Standard Time (EST)</SelectItem>
+                      <SelectItem value="cst">Central Standard Time (CST)</SelectItem>
+                      <SelectItem value="mst">Mountain Standard Time (MST)</SelectItem>
+                      <SelectItem value="pst">Pacific Standard Time (PST)</SelectItem>
+                      <SelectItem value="akst">Alaska Standard Time (AKST)</SelectItem>
+                      <SelectItem value="hst">Hawaii Standard Time (HST)</SelectItem>
+                    </SelectGroup>
+                    
+                    <SelectGroup>
+                      <SelectLabel>Europe & Africa</SelectLabel>
+                      <SelectItem value="gmt">Greenwich Mean Time (GMT)</SelectItem>
+                      <SelectItem value="cet">Central European Time (CET)</SelectItem>
+                      <SelectItem value="eet">Eastern European Time (EET)</SelectItem>
+                      <SelectItem value="west">
+                        Western European Summer Time (WEST)
+                      </SelectItem>
+                      <SelectItem value="cat">Central Africa Time (CAT)</SelectItem>
+                      <SelectItem value="eat">East Africa Time (EAT)</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
             </CardHeader>
           </Card>
         </div>

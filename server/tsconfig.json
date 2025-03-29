@@ -35,6 +35,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["./src/**/*.ts", "./src/db.json", "./src/schema.gql"],
+  "include": ["./src/**/*.ts", "./src/db.json", "./declarations.d.ts"],
   "exclude": ["node_modules"]
 }

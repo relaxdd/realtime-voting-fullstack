@@ -5,12 +5,12 @@ const config: CodegenConfig = {
   schema: './shared/schema.graphql',
   ignoreNoDocuments: true,
   documents: [
-    'client/src/**/*.ts',
-    'client/src/**/*.tsx',
-    'client/src/**/*.gql',
+    'client/src/graphql/**/*.ts',
+    'client/src/graphql/**/*.tsx',
+    'client/src/graphql/**/*.gql',
   ],
   generates: {
-    './client/src/gql/generated.ts': {
+    './client/src/graphql/generated.ts': {
       plugins: [
         'typescript',
         'typed-document-node',

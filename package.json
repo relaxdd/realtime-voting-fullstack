@@ -2,7 +2,14 @@
   "name": "realtime-voting",
   "version": "1.0.0",
   "private": true,
-  "workspaces": ["client", "server", "shared"],
+  "type": "module",
+  "author": "awenn2015",
+  "license": "ISC",
+  "workspaces": [
+    "client",
+    "server",
+    "shared"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "codegen": "graphql-codegen --config codegen.ts"
@@ -14,12 +21,10 @@
   "devDependencies": {
     "@graphql-codegen/add": "^5.0.3",
     "@graphql-codegen/client-preset": "4.7.0",
-    "@graphql-codegen/typescript-operations": "^4.5.1",
+    "@graphql-codegen/typescript-operations": "4.5.1",
     "@graphql-codegen/cli": "5.0.5",
-    "@graphql-codegen/typescript": "4.1.5",
+    "@graphql-codegen/typescript": "4.1.6",
     "@graphql-codegen/introspection": "4.0.3",
     "@graphql-codegen/typescript-resolvers": "4.4.4"
-  },
-  "author": "awenn2015",
-  "license": "ISC"
+  }
 }

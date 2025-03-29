@@ -1,110 +1,214 @@
-import { useRef, useState } from 'react';
-import css from '../assets/css/pages/post.page.module.css';
+import { Textarea } from '@/components/ui/textarea.tsx';
+import { useAppGlobalContext } from '@/providers/app-global.provider.tsx';
+import language from '@/shared/language.ts';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { FormControl, FormField, FormItem, FormLabel, FormMessage, Form } from '@/components/ui/form.tsx';
+import { Button } from '@/components/ui/button.tsx';
+import { Input } from '@/components/ui/input.tsx';
+import { CreateVotingDocument, ICreateVotingInput } from '@/graphql/generated.ts';
+import BackwardHeader from '@/components/backward-header.tsx';
+import { useMutation } from '@apollo/client';
+import { ArrowDown, ArrowUp, Trash } from 'lucide-react';
+import { useEffect } from 'react';
+import { useFieldArray, useForm } from 'react-hook-form';
+import { z } from 'zod';
+
+const formErrors = {
+  title: {
+    min: 'Title must be at least 5 characters.',
+  },
+  choices: {
+    min: 'The number of options must be at least 3.',
+  },
+} as const;
+
+const choiceFormSchema = z.object({
+  label: z.string(),
+});
+
+const formSchema = z.object({
+  description: z.string(),
+  title: z.string().min(5, { message: formErrors.title.min }),
+  choices: z.array(choiceFormSchema).min(3, { message: formErrors.choices.min }),
+});
+
+type FormFields = z.infer<typeof formSchema>
 
 const PostPage = () => {
-  const defChoices = useRef(['', '', '']);
-  const [choices, setChoices] = useState<string[]>(defChoices.current);
+  const [{ lang }] = useAppGlobalContext();
+  const [createVoting, { loading }] = useMutation(CreateVotingDocument);
   
-  function changeChoice(index: number, value: string) {
-    setChoices((prev) => prev.map((it, i) => i !== index ? it : value));
-  }
+  const form = useForm<FormFields>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: '',
+      description: '',
+      choices: [
+        { label: '' },
+        { label: '' },
+        { label: '' },
+      ],
+    },
+  });
   
-  function addYetChoice() {
-    setChoices((prev) => [...prev, '']);
-  }
+  const choices = useFieldArray({
+    name: 'choices',
+    control: form.control,
+    rules: { minLength: 3, maxLength: 10 },
+  });
   
-  function onDeleteChoice(index: number) {
-    setChoices((prev) => prev.filter((_, i) => i !== index));
-  }
+  useEffect(() => {
+    console.log(form?.formState.errors?.choices?.root);
+  }, [form?.formState.errors?.choices?.root]);
   
-  function pushMokeData(data: IVoting) {
-    return new Promise<void>(resolve => {
-      setTimeout(() => {
-        const prev = JSON.parse(window.localStorage.getItem('posts') || '[]');
-        if (!Array.isArray(prev)) throw new Error('posts must be an array');
-        
-        window.localStorage.setItem('posts', JSON.stringify([...prev, data]));
-        resolve();
-      }, 300);
+  /*
+   * ===================================
+   */
+  
+  async function onSubmitHandler({ description, ...values }: FormFields) {
+    const choices: string[] = [];
+    
+    const payload: ICreateVotingInput = {
+      ...values,
+      choices,
+      description: description || null,
+    };
+    
+    console.log({ description, ...values });
+    return;
+    
+    await createVoting({
+      variables: {
+        input: payload,
+      },
+      onCompleted: () => {
+        alert('Новое голосование успешно создано');
+      },
+      onError: (err) => {
+        console.error(err.message);
+        alert('Не удалось создать новое голосование');
+      },
     });
-  }
-  
-  async function onSubmitHandler(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
     
-    const target = e.currentTarget as HTMLFormElement;
-    const formData = new FormData(target);
-    const choices = formData.getAll('choices');
-    
-    await pushMokeData({
-      id: (new Date()).getTime(),
-      title: String(formData.get('title')),
-      description: String(formData.get('description')),
-      choices: Array.isArray(choices) ? choices.map(it => String(it)) : [],
-    });
-    
-    target.reset();
-    setChoices(defChoices.current);
+    // target.reset();
+    // setChoices(defChoices.current);
   }
   
   return (
-    <div className="main">
-      <div className="container">
-        <form onSubmit={onSubmitHandler}>
-          <div className={css.form_fields}>
-            <div className={css.form_field}>
-              <label htmlFor="title" className={css.form_field__label}>Название опроса *</label>
-              <input type="text" id="title" name="title" className={css.form_field__control} style={{ width: '100%' }} required />
-            </div>
-            
-            <div className={css.form_field} style={{ marginBottom: '0.5rem' }}>
-              <label htmlFor="description" className={css.form_field__label}>Описание</label>
-              <textarea id="description" name="description" className={css.form_field__control} style={{ width: '100%' }}
-                        rows={2} />
-            </div>
-            
-            {choices.map((value, index) => (
-              <div className={css.form_field} key={index}>
-                <label htmlFor="" className={css.form_field__label}>Вариант {index + 1}</label>
+    <>
+      <BackwardHeader title={language.newVoting[lang]} />
+      
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmitHandler)}>
+          <FormField
+            name="title"
+            control={form.control}
+            rules={{ required: true }}
+            render={({ field }) => (
+              <FormItem className="mb-6">
+                <FormLabel>{language.title[lang]}</FormLabel>
                 
-                <div className={css.form_field__shell}>
-                  {/* TODO: Тут будет grabber */}
-                  
-                  <input
-                    required
-                    type="text"
-                    value={value}
-                    name="choices"
-                    placeholder="Вариант ответа"
-                    className={css.form_field__control}
-                    onChange={({ target }) => {
-                      changeChoice(index, target.value);
-                    }}
-                  />
-                  
-                  <input
-                    value="Del"
-                    type="button"
-                    data-color="red"
-                    className={css.primary_btn}
-                    disabled={choices.length <= 3}
-                    onClick={() => onDeleteChoice(index)}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
+                <FormControl>
+                  <Input placeholder="shadcn" {...field} />
+                </FormControl>
+                
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           
-          <div className={css.form_actions}>
-            <input type="submit" value="Post new voting" className={css.primary_btn} />
+          <FormField
+            name="description"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem className="mb-6">
+                <FormLabel>{language.description[lang]}</FormLabel>
+                
+                <FormControl>
+                  <Textarea {...field} />
+                </FormControl>
+                
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          {choices.fields.map((item, i) => (
+            <FormField
+              key={item.id}
+              name={`choices.${i}.label`}
+              control={form.control}
+              rules={{ required: true }}
+              render={({ field }) => {
+                return (
+                  <FormItem className="mb-6">
+                    <FormLabel>{language.choice[lang]} {i + 1}</FormLabel>
+                    
+                    <div className="flex flex-row gap-x-3">
+                      <FormControl>
+                        <Input
+                          {...field}
+                        />
+                      </FormControl>
+                      
+                      <div className="flex flex-row gap-x-2">
+                        <Button
+                          type="button"
+                          disabled={i === 0}
+                          onClick={() => choices.swap(i, i - 1)}
+                        >
+                          <ArrowUp />
+                        </Button>
+                        
+                        <Button
+                          type="button"
+                          disabled={i === choices.fields.length - 1}
+                          onClick={() => choices.swap(i, i + 1)}
+                        >
+                          <ArrowDown />
+                        </Button>
+                        
+                        <Button
+                          type="button"
+                          onClick={() => choices.remove(i)}
+                          variant="destructive"
+                          disabled={choices.fields.length < 4}
+                        >
+                          <Trash />
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
+            />
+          ))}
+          
+          <div className="flex flex-row gap-x-3">
+            <Button
+              type="submit"
+              children={language.sendData[lang]}
+              className="font-semibold"
+            />
             
-            {choices.length < 7 && (
-              <input type="button" value="Add yet" className={css.primary_btn} onClick={addYetChoice} />
+            {choices.fields.length < 7 && (
+              <Button
+                type="button"
+                children={language.addYet[lang]}
+                onClick={() => choices.append({ label: '' })}
+                className="font-semibold"
+              />
             )}
           </div>
         </form>
-      </div>
-    </div>
+      </Form>
+      
+      {loading && (
+        <p>Идет загрузка...</p>
+      )}
+    </>
   );
 };
 

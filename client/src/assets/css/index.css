@@ -62,10 +62,6 @@ ul {
   padding-left: 22px;
 }
 
-.main {
-  margin: 2rem 0;
-}
-
 .container {
   max-width: 1340px;
   padding: 0 1rem;
@@ -160,5 +156,13 @@ ul {
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+a {
+  color: #ad1619;
+
+  &:hover {
+    opacity: .7;
   }
 }

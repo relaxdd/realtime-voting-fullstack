@@ -5,3 +5,11 @@ export class TimeConst {
   public static day = this.hour * 24
   public static week = this.day * 7
 }
+
+export const AllowedLanguages = {
+  en: 'EN',
+  ru: 'RU',
+} as const
+
+export type AllowedLanguages = (keyof typeof AllowedLanguages)[]
+export type AllowedLanguage = AllowedLanguages[number]

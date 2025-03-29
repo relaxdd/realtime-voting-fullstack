@@ -1,4 +1,6 @@
 import { defineConfig } from 'vite';
+// import graphql from '@rollup/plugin-graphql';
+// import graphql from 'vite-plugin-graphql-loader';
 import path from 'path';
 
 const entry = 'src/index.ts'
@@ -26,5 +28,8 @@ export default defineConfig({
       '@': path.resolve(__dirname, 'src'),
     },
   },
-  apply: 'build',
+  // apply: 'build',
+  plugins: [
+    // graphql()
+  ],
 })

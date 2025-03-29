@@ -1,5 +1,6 @@
 schema {
   query: Query
+  mutation: Mutation
 }
 
 "Indicates exactly one field must be supplied and this field must not be `null`."
@@ -9,7 +10,25 @@ type Query {
   hello: String!
   firstUser: User
   oneVoting(id: ID!): Voting
-  manyVoting(isActive: Boolean, limit: Int, paged: Int): [Voting!]!
+  manyVoting(
+    limit: Int,
+    paged: Int,
+    search: String
+    isActive: Boolean,
+  ): [Voting!]!
+}
+
+input CreateVotingInput {
+  title: String!
+  choices: [String!]!
+  description: String
+  isActive: Boolean
+  finishIn: String
+}
+
+type Mutation {
+  deleteVoting(id: ID!): Boolean!
+  createVoting(payload: CreateVotingInput!): Voting
 }
 
 type User {
@@ -59,7 +78,7 @@ type Choice {
   id: ID!
   label: String!
   value: String!
-  count: Int!
+  votes: Int!
   createdAt: String!
   updatedAt: String!
   votingId: ID!

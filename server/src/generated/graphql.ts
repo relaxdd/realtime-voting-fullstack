@@ -34,13 +34,21 @@ export type IAnswer = {
 
 export type IChoice = {
   __typename?: 'Choice';
-  count: Scalars['Int']['output'];
   createdAt: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   label: Scalars['String']['output'];
   updatedAt: Scalars['String']['output'];
   value: Scalars['String']['output'];
+  votes: Scalars['Int']['output'];
   votingId: Scalars['ID']['output'];
+};
+
+export type ICreateVotingInput = {
+  choices: Array<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  finishIn?: InputMaybe<Scalars['String']['input']>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  title: Scalars['String']['input'];
 };
 
 export type IDateTime = {
@@ -50,6 +58,22 @@ export type IDateTime = {
   iso: Scalars['String']['output'];
   pretty: Scalars['String']['output'];
   time: Scalars['String']['output'];
+};
+
+export type IMutation = {
+  __typename?: 'Mutation';
+  createVoting?: Maybe<IVoting>;
+  deleteVoting: Scalars['Boolean']['output'];
+};
+
+
+export type IMutationCreateVotingArgs = {
+  payload: ICreateVotingInput;
+};
+
+
+export type IMutationDeleteVotingArgs = {
+  id: Scalars['ID']['input'];
 };
 
 export type IProfile = {
@@ -77,6 +101,7 @@ export type IQueryManyVotingArgs = {
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   paged?: InputMaybe<Scalars['Int']['input']>;
+  search?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -185,9 +210,11 @@ export type IResolversTypes = {
   Answer: ResolverTypeWrapper<IAnswer>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   Choice: ResolverTypeWrapper<IChoice>;
+  CreateVotingInput: ICreateVotingInput;
   DateTime: ResolverTypeWrapper<IDateTime>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
+  Mutation: ResolverTypeWrapper<{}>;
   Profile: ResolverTypeWrapper<IProfile>;
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
@@ -200,9 +227,11 @@ export type IResolversParentTypes = {
   Answer: IAnswer;
   Boolean: Scalars['Boolean']['output'];
   Choice: IChoice;
+  CreateVotingInput: ICreateVotingInput;
   DateTime: IDateTime;
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
+  Mutation: {};
   Profile: IProfile;
   Query: {};
   String: Scalars['String']['output'];
@@ -220,12 +249,12 @@ export type IAnswerResolvers<ContextType = IApolloContext, ParentType extends IR
 };
 
 export type IChoiceResolvers<ContextType = IApolloContext, ParentType extends IResolversParentTypes['Choice'] = IResolversParentTypes['Choice']> = {
-  count?: Resolver<IResolversTypes['Int'], ParentType, ContextType>;
   createdAt?: Resolver<IResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<IResolversTypes['ID'], ParentType, ContextType>;
   label?: Resolver<IResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<IResolversTypes['String'], ParentType, ContextType>;
   value?: Resolver<IResolversTypes['String'], ParentType, ContextType>;
+  votes?: Resolver<IResolversTypes['Int'], ParentType, ContextType>;
   votingId?: Resolver<IResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -237,6 +266,11 @@ export type IDateTimeResolvers<ContextType = IApolloContext, ParentType extends 
   pretty?: Resolver<IResolversTypes['String'], ParentType, ContextType>;
   time?: Resolver<IResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type IMutationResolvers<ContextType = IApolloContext, ParentType extends IResolversParentTypes['Mutation'] = IResolversParentTypes['Mutation']> = {
+  createVoting?: Resolver<Maybe<IResolversTypes['Voting']>, ParentType, ContextType, RequireFields<IMutationCreateVotingArgs, 'payload'>>;
+  deleteVoting?: Resolver<IResolversTypes['Boolean'], ParentType, ContextType, RequireFields<IMutationDeleteVotingArgs, 'id'>>;
 };
 
 export type IProfileResolvers<ContextType = IApolloContext, ParentType extends IResolversParentTypes['Profile'] = IResolversParentTypes['Profile']> = {
@@ -288,6 +322,7 @@ export type IResolvers<ContextType = IApolloContext> = {
   Answer?: IAnswerResolvers<ContextType>;
   Choice?: IChoiceResolvers<ContextType>;
   DateTime?: IDateTimeResolvers<ContextType>;
+  Mutation?: IMutationResolvers<ContextType>;
   Profile?: IProfileResolvers<ContextType>;
   Query?: IQueryResolvers<ContextType>;
   User?: IUserResolvers<ContextType>;
