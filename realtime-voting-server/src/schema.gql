@@ -37,6 +37,8 @@ type Profile {
 
 type DateTime {
   iso: String!
+  date: String!
+  time: String!
   gmt: String!
   pretty: String!
 }

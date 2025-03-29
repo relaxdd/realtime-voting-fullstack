@@ -25,9 +25,11 @@ export const enum IAllowedColor {
 
 export type IDateTime = {
   __typename?: 'DateTime';
+  date: Scalars['String']['output'];
   gmt: Scalars['String']['output'];
   iso: Scalars['String']['output'];
   pretty: Scalars['String']['output'];
+  time: Scalars['String']['output'];
 };
 
 export type IProfile = {
@@ -198,9 +200,11 @@ export type IResolversParentTypes = {
 };
 
 export type IDateTimeResolvers<ContextType = IApolloContext, ParentType extends IResolversParentTypes['DateTime'] = IResolversParentTypes['DateTime']> = {
+  date?: Resolver<IResolversTypes['String'], ParentType, ContextType>;
   gmt?: Resolver<IResolversTypes['String'], ParentType, ContextType>;
   iso?: Resolver<IResolversTypes['String'], ParentType, ContextType>;
   pretty?: Resolver<IResolversTypes['String'], ParentType, ContextType>;
+  time?: Resolver<IResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

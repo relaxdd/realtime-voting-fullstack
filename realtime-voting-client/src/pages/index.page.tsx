@@ -7,15 +7,6 @@ import { useQuery } from '@apollo/client';
 import { Link } from 'react-router';
 import css from '@/assets/css/pages/index.page.module.css';
 
-function getPrettyDateTime(isoDate: string): string {
-  const dateObj = new Date(isoDate);
-  
-  const date = dateObj.toLocaleDateString('ru-RU');
-  const time = dateObj.toLocaleTimeString('ru-RU');
-  
-  return `${date} в ${time.slice(0, time.length - 3)}`;
-}
-
 const IndexPage = () => {
   const { loading, data, error } = useQuery(GetAllActiveVotingDocument, { pollInterval: TimeConst.minute / 2 });
   
@@ -52,7 +43,7 @@ const IndexPage = () => {
                     )}
                     
                     <small className="inline-block mt-3">
-                      Опубликовано: <time dateTime={post.createdAt.split('T')[0]}>{getPrettyDateTime(post.createdAt)}</time>
+                      Опубликовано: <time dateTime={post.createdAt.date}>{post.createdAt.pretty}</time>
                     </small>
                   </CardContent>
                 </Card>

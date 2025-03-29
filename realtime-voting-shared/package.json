@@ -1,0 +1,16 @@
+{
+  "name": "realtime-voting-shared",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "awenn2015",
+  "license": "ISC",
+  "dependencies": {
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "5.0.5",
+    "@graphql-codegen/typescript": "4.1.5"
+  }
+}

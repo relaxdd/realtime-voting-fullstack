@@ -23,9 +23,11 @@ export const enum AllowedColor {
 
 export type IDateTime = {
   __typename: 'DateTime';
+  date: Scalars['String']['output'];
   gmt: Scalars['String']['output'];
   iso: Scalars['String']['output'];
   pretty: Scalars['String']['output'];
+  time: Scalars['String']['output'];
 };
 
 export type IProfile = {
@@ -42,32 +44,22 @@ export type IProfile = {
 
 export type IQuery = {
   __typename: 'Query';
+  firstUser?: Maybe<IUser>;
   hello: Scalars['String']['output'];
   manyVoting: Array<IVoting>;
   oneVoting?: Maybe<IVoting>;
-  user: ITest;
 };
 
 
 export type IQueryManyVotingArgs = {
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  paged?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
 export type IQueryOneVotingArgs = {
   id: Scalars['ID']['input'];
-};
-
-
-export type IQueryUserArgs = {
-  id: Scalars['ID']['input'];
-};
-
-export type ITest = {
-  __typename: 'Test';
-  email: Scalars['String']['output'];
-  id: Scalars['ID']['output'];
-  name: Scalars['String']['output'];
 };
 
 export type IUser = {
@@ -76,7 +68,6 @@ export type IUser = {
   email?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   login: Scalars['String']['output'];
-  password?: Maybe<Scalars['String']['output']>;
   profile?: Maybe<IProfile>;
   updatedAt: Scalars['String']['output'];
 };
@@ -86,14 +77,14 @@ export type IVoting = {
   author: IUser;
   authorId: Scalars['String']['output'];
   choices?: Maybe<Array<IVotingChoice>>;
-  createdAt: Scalars['String']['output'];
-  date: IDateTime;
+  createdAt: IDateTime;
   description?: Maybe<Scalars['String']['output']>;
   finishIn?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   isActive: Scalars['Boolean']['output'];
+  shortId: Scalars['String']['output'];
   title: Scalars['String']['output'];
-  updatedAt: Scalars['String']['output'];
+  updatedAt: IDateTime;
   votesNumber: Scalars['Int']['output'];
 };
 
@@ -109,16 +100,16 @@ export type IVotingChoice = {
 };
 
 
-export const GetAllActiveVotingDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"getAllActiveVoting"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"manyVoting"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"isActive"},"value":{"kind":"BooleanValue","value":true}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}},{"kind":"Field","name":{"kind":"Name","value":"authorId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"votesNumber"}}]}}]}}]} as unknown as DocumentNode<IGetAllActiveVotingQuery, IGetAllActiveVotingQueryVariables>;
-export const GetVotingByIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"getVotingById"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"oneVoting"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"authorId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"votesNumber"}},{"kind":"Field","name":{"kind":"Name","value":"choices"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"count"}}]}}]}}]}}]} as unknown as DocumentNode<IGetVotingByIdQuery, IGetVotingByIdQueryVariables>;
+export const GetAllActiveVotingDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"getAllActiveVoting"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"manyVoting"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"isActive"},"value":{"kind":"BooleanValue","value":true}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"isActive"}},{"kind":"Field","name":{"kind":"Name","value":"authorId"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"date"}},{"kind":"Field","name":{"kind":"Name","value":"pretty"}}]}},{"kind":"Field","name":{"kind":"Name","value":"votesNumber"}}]}}]}}]} as unknown as DocumentNode<IGetAllActiveVotingQuery, IGetAllActiveVotingQueryVariables>;
+export const GetVotingByIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"getVotingById"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"oneVoting"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"authorId"}},{"kind":"Field","name":{"kind":"Name","value":"votesNumber"}},{"kind":"Field","name":{"kind":"Name","value":"choices"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"count"}}]}}]}}]}}]} as unknown as DocumentNode<IGetVotingByIdQuery, IGetVotingByIdQueryVariables>;
 export type IGetAllActiveVotingQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type IGetAllActiveVotingQuery = { __typename: 'Query', manyVoting: Array<{ __typename: 'Voting', id: string, title: string, description?: string | null, isActive: boolean, authorId: string, createdAt: string, votesNumber: number }> };
+export type IGetAllActiveVotingQuery = { __typename: 'Query', manyVoting: Array<{ __typename: 'Voting', id: string, title: string, description?: string | null, isActive: boolean, authorId: string, votesNumber: number, createdAt: { __typename: 'DateTime', date: string, pretty: string } }> };
 
 export type IGetVotingByIdQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type IGetVotingByIdQuery = { __typename: 'Query', oneVoting?: { __typename: 'Voting', id: string, title: string, description?: string | null, authorId: string, createdAt: string, votesNumber: number, choices?: Array<{ __typename: 'VotingChoice', id: string, label: string, value: string, count: number }> | null } | null };
+export type IGetVotingByIdQuery = { __typename: 'Query', oneVoting?: { __typename: 'Voting', id: string, title: string, description?: string | null, authorId: string, votesNumber: number, choices?: Array<{ __typename: 'VotingChoice', id: string, label: string, value: string, count: number }> | null } | null };

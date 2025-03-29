@@ -1,0 +1,19 @@
+{
+  "name": "realtime-voting-fullstack",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "realtime-voting-client",
+    "realtime-voting-server",
+    "realtime-voting-shared"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/relaxdd/realtime-voting-fullstack.git"
+  },
+  "author": "awenn2015",
+  "license": "ISC"
+}

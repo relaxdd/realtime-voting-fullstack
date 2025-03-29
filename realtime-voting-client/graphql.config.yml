@@ -1,7 +1,7 @@
 schema: schema.gql
 documents: src/gql/**/*.ts
 projects:
-  awenn-voting:
+  realtime-voting:
     schemaPath: schema.gql
     extensions:
       endpoints:
