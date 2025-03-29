@@ -1,5 +1,5 @@
 {
-  "name": "realtime-voting-client",
+  "name": "@realtime-voting/client",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -9,6 +9,9 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "codegen": "graphql-codegen --config codegen.ts"
+  },
+  "peerDependencies": {
+    "zod": "^3.24.2"
   },
   "dependencies": {
     "@apollo/client": "^3.13.5",
@@ -31,14 +34,8 @@
     "tailwindcss": "^4.0.17",
     "tw-animate-css": "^1.2.4"
   },
-  "peerDependencies": {
-    "zod": "^3.24.2"
-  },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
-    "@graphql-codegen/add": "^5.0.3",
-    "@graphql-codegen/client-preset": "4.7.0",
-    "@graphql-codegen/typescript-operations": "^4.5.1",
     "@types/node": "^22.13.13",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
@@ -48,8 +45,6 @@
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^15.15.0",
-    "typescript": "~5.8.2",
-    "typescript-eslint": "^8.24.1",
-    "vite": "^6.2.3"
+    "typescript-eslint": "^8.24.1"
   }
 }

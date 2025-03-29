@@ -1,12 +1,12 @@
-import * as http from 'http';
-import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import { ApolloServer } from '@apollo/server';
-import gql from 'graphql-tag';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import { Prisma, PrismaClient, Voting } from '@prisma/client';
 import { readFileSync } from 'fs';
+import gql from 'graphql-tag';
+import * as http from 'http';
 import { resolve } from 'path';
 import jsonData from './db.json';
-import { IDateTime, IProfile, IResolvers, IUser, IVoting } from './generated/graphql';
-import { Prisma, PrismaClient, Voting } from '@prisma/client';
+import { IDateTime, IResolvers, IUser, IVoting } from './generated/graphql';
 
 export type JsonData = typeof jsonData
 
@@ -153,14 +153,12 @@ const getResolvers = (): IResolvers => ({
 
 function createApollo(httpServer: http.Server) {
   const typeDefs = gql(readFileSync(resolve(__dirname, 'schema.gql'), { encoding: 'utf-8' }));
-  
-  const server = new ApolloServer<IApolloContext>({
+
+  return new ApolloServer<IApolloContext>({
     typeDefs,
     resolvers: getResolvers(),
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
   });
-  
-  return server;
 }
 
 export { createApollo };

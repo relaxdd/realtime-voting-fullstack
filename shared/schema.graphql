@@ -2,17 +2,14 @@ schema {
   query: Query
 }
 
+"Indicates exactly one field must be supplied and this field must not be `null`."
+directive @oneOf on INPUT_OBJECT
+
 type Query {
   hello: String!
   firstUser: User
   oneVoting(id: ID!): Voting
   manyVoting(isActive: Boolean, limit: Int, paged: Int): [Voting!]!
-}
-
-enum AllowedColor {
-  RED
-  GREEN
-  BLUE
 }
 
 type User {
@@ -54,11 +51,11 @@ type Voting {
   updatedAt: DateTime!
   authorId: String!
   author: User!
-  choices: [VotingChoice!]
+  choices: [Choice!]
   votesNumber: Int!
 }
 
-type VotingChoice {
+type Choice {
   id: ID!
   label: String!
   value: String!
@@ -66,4 +63,18 @@ type VotingChoice {
   createdAt: String!
   updatedAt: String!
   votingId: ID!
+}
+
+type Answer {
+  id: ID!
+  userId: String!
+  votingId: String!
+  choiceId: String!
+  createdAt: String!
+}
+
+enum AllowedColor {
+  RED
+  GREEN
+  BLUE
 }

@@ -23,6 +23,26 @@ export const enum IAllowedColor {
   Red = 'RED'
 };
 
+export type IAnswer = {
+  __typename?: 'Answer';
+  choiceId: Scalars['String']['output'];
+  createdAt: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  userId: Scalars['String']['output'];
+  votingId: Scalars['String']['output'];
+};
+
+export type IChoice = {
+  __typename?: 'Choice';
+  count: Scalars['Int']['output'];
+  createdAt: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  label: Scalars['String']['output'];
+  updatedAt: Scalars['String']['output'];
+  value: Scalars['String']['output'];
+  votingId: Scalars['ID']['output'];
+};
+
 export type IDateTime = {
   __typename?: 'DateTime';
   date: Scalars['String']['output'];
@@ -78,7 +98,7 @@ export type IVoting = {
   __typename?: 'Voting';
   author: IUser;
   authorId: Scalars['String']['output'];
-  choices?: Maybe<Array<IVotingChoice>>;
+  choices?: Maybe<Array<IChoice>>;
   createdAt: IDateTime;
   description?: Maybe<Scalars['String']['output']>;
   finishIn?: Maybe<Scalars['String']['output']>;
@@ -88,17 +108,6 @@ export type IVoting = {
   title: Scalars['String']['output'];
   updatedAt: IDateTime;
   votesNumber: Scalars['Int']['output'];
-};
-
-export type IVotingChoice = {
-  __typename?: 'VotingChoice';
-  count: Scalars['Int']['output'];
-  createdAt: Scalars['String']['output'];
-  id: Scalars['ID']['output'];
-  label: Scalars['String']['output'];
-  updatedAt: Scalars['String']['output'];
-  value: Scalars['String']['output'];
-  votingId: Scalars['ID']['output'];
 };
 
 
@@ -173,7 +182,9 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type IResolversTypes = {
   AllowedColor: IAllowedColor;
+  Answer: ResolverTypeWrapper<IAnswer>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  Choice: ResolverTypeWrapper<IChoice>;
   DateTime: ResolverTypeWrapper<IDateTime>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
@@ -182,12 +193,13 @@ export type IResolversTypes = {
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   User: ResolverTypeWrapper<IUser>;
   Voting: ResolverTypeWrapper<IVoting>;
-  VotingChoice: ResolverTypeWrapper<IVotingChoice>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
 export type IResolversParentTypes = {
+  Answer: IAnswer;
   Boolean: Scalars['Boolean']['output'];
+  Choice: IChoice;
   DateTime: IDateTime;
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
@@ -196,7 +208,26 @@ export type IResolversParentTypes = {
   String: Scalars['String']['output'];
   User: IUser;
   Voting: IVoting;
-  VotingChoice: IVotingChoice;
+};
+
+export type IAnswerResolvers<ContextType = IApolloContext, ParentType extends IResolversParentTypes['Answer'] = IResolversParentTypes['Answer']> = {
+  choiceId?: Resolver<IResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<IResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<IResolversTypes['ID'], ParentType, ContextType>;
+  userId?: Resolver<IResolversTypes['String'], ParentType, ContextType>;
+  votingId?: Resolver<IResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type IChoiceResolvers<ContextType = IApolloContext, ParentType extends IResolversParentTypes['Choice'] = IResolversParentTypes['Choice']> = {
+  count?: Resolver<IResolversTypes['Int'], ParentType, ContextType>;
+  createdAt?: Resolver<IResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<IResolversTypes['ID'], ParentType, ContextType>;
+  label?: Resolver<IResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<IResolversTypes['String'], ParentType, ContextType>;
+  value?: Resolver<IResolversTypes['String'], ParentType, ContextType>;
+  votingId?: Resolver<IResolversTypes['ID'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type IDateTimeResolvers<ContextType = IApolloContext, ParentType extends IResolversParentTypes['DateTime'] = IResolversParentTypes['DateTime']> = {
@@ -240,7 +271,7 @@ export type IUserResolvers<ContextType = IApolloContext, ParentType extends IRes
 export type IVotingResolvers<ContextType = IApolloContext, ParentType extends IResolversParentTypes['Voting'] = IResolversParentTypes['Voting']> = {
   author?: Resolver<IResolversTypes['User'], ParentType, ContextType>;
   authorId?: Resolver<IResolversTypes['String'], ParentType, ContextType>;
-  choices?: Resolver<Maybe<Array<IResolversTypes['VotingChoice']>>, ParentType, ContextType>;
+  choices?: Resolver<Maybe<Array<IResolversTypes['Choice']>>, ParentType, ContextType>;
   createdAt?: Resolver<IResolversTypes['DateTime'], ParentType, ContextType>;
   description?: Resolver<Maybe<IResolversTypes['String']>, ParentType, ContextType>;
   finishIn?: Resolver<Maybe<IResolversTypes['String']>, ParentType, ContextType>;
@@ -253,23 +284,13 @@ export type IVotingResolvers<ContextType = IApolloContext, ParentType extends IR
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type IVotingChoiceResolvers<ContextType = IApolloContext, ParentType extends IResolversParentTypes['VotingChoice'] = IResolversParentTypes['VotingChoice']> = {
-  count?: Resolver<IResolversTypes['Int'], ParentType, ContextType>;
-  createdAt?: Resolver<IResolversTypes['String'], ParentType, ContextType>;
-  id?: Resolver<IResolversTypes['ID'], ParentType, ContextType>;
-  label?: Resolver<IResolversTypes['String'], ParentType, ContextType>;
-  updatedAt?: Resolver<IResolversTypes['String'], ParentType, ContextType>;
-  value?: Resolver<IResolversTypes['String'], ParentType, ContextType>;
-  votingId?: Resolver<IResolversTypes['ID'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
 export type IResolvers<ContextType = IApolloContext> = {
+  Answer?: IAnswerResolvers<ContextType>;
+  Choice?: IChoiceResolvers<ContextType>;
   DateTime?: IDateTimeResolvers<ContextType>;
   Profile?: IProfileResolvers<ContextType>;
   Query?: IQueryResolvers<ContextType>;
   User?: IUserResolvers<ContextType>;
   Voting?: IVotingResolvers<ContextType>;
-  VotingChoice?: IVotingChoiceResolvers<ContextType>;
 };
 
