@@ -32,6 +32,15 @@ export type IAnswer = {
   votingId: Scalars['String']['output'];
 };
 
+export type IAuthorizationInput = {
+  firstName?: InputMaybe<Scalars['String']['input']>;
+  hash: Scalars['String']['input'];
+  id: Scalars['Int']['input'];
+  lastName?: InputMaybe<Scalars['String']['input']>;
+  photoUrl?: InputMaybe<Scalars['String']['input']>;
+  username: Scalars['String']['input'];
+};
+
 export type IChoice = {
   __typename?: 'Choice';
   createdAt: Scalars['String']['output'];
@@ -62,8 +71,14 @@ export type IDateTime = {
 
 export type IMutation = {
   __typename?: 'Mutation';
+  authorization?: Maybe<Scalars['String']['output']>;
   createVoting?: Maybe<IVoting>;
   deleteVoting: Scalars['Boolean']['output'];
+};
+
+
+export type IMutationAuthorizationArgs = {
+  payload: IAuthorizationInput;
 };
 
 
@@ -208,6 +223,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type IResolversTypes = {
   AllowedColor: IAllowedColor;
   Answer: ResolverTypeWrapper<IAnswer>;
+  AuthorizationInput: IAuthorizationInput;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   Choice: ResolverTypeWrapper<IChoice>;
   CreateVotingInput: ICreateVotingInput;
@@ -225,6 +241,7 @@ export type IResolversTypes = {
 /** Mapping between all available schema types and the resolvers parents */
 export type IResolversParentTypes = {
   Answer: IAnswer;
+  AuthorizationInput: IAuthorizationInput;
   Boolean: Scalars['Boolean']['output'];
   Choice: IChoice;
   CreateVotingInput: ICreateVotingInput;
@@ -269,6 +286,7 @@ export type IDateTimeResolvers<ContextType = IApolloContext, ParentType extends 
 };
 
 export type IMutationResolvers<ContextType = IApolloContext, ParentType extends IResolversParentTypes['Mutation'] = IResolversParentTypes['Mutation']> = {
+  authorization?: Resolver<Maybe<IResolversTypes['String']>, ParentType, ContextType, RequireFields<IMutationAuthorizationArgs, 'payload'>>;
   createVoting?: Resolver<Maybe<IResolversTypes['Voting']>, ParentType, ContextType, RequireFields<IMutationCreateVotingArgs, 'payload'>>;
   deleteVoting?: Resolver<IResolversTypes['Boolean'], ParentType, ContextType, RequireFields<IMutationDeleteVotingArgs, 'id'>>;
 };

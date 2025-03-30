@@ -26,9 +26,19 @@ input CreateVotingInput {
   finishIn: String
 }
 
+input AuthorizationInput {
+  id: Int!
+  hash: String!
+  username: String!
+  firstName: String
+  lastName: String
+  photoUrl: String
+}
+
 type Mutation {
   deleteVoting(id: ID!): Boolean!
   createVoting(payload: CreateVotingInput!): Voting
+  authorization(payload: AuthorizationInput!): String
 }
 
 type User {

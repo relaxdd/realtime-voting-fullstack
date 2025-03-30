@@ -1,8 +1,8 @@
 import { useAppGlobalContext } from '@/providers/app-global.provider.tsx';
 import { AllowedLanguage, AllowedLanguages } from '@/shared/defines.ts';
 import language from '@/shared/language.ts';
-import { Link, Outlet, useSearchParams } from 'react-router';
-import { Search, X } from 'lucide-react';
+import { Link, Outlet, useNavigate, useSearchParams } from 'react-router';
+import { LogIn, Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button.tsx';
 import { Input } from '@/components/ui/input.tsx';
 import {
@@ -15,6 +15,7 @@ import {
 
 
 const RootLayout = () => {
+  const navigate = useNavigate();
   const [{ lang }, dispatch] = useAppGlobalContext();
   const [searchParams, setSearchParams] = useSearchParams({ s: '' });
   
@@ -75,6 +76,14 @@ const RootLayout = () => {
                   </Button>
                 </div>
               </form>
+              
+              <Button
+                variant="outline"
+                className="cursor-pointer"
+                onClick={() => navigate('/login')}
+              >
+                <LogIn />{' '}Войти
+              </Button>
             </div>
           </div>
         </div>

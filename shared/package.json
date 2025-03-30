@@ -3,18 +3,6 @@
   "version": "1.0.0",
   "type": "module",
   "private": true,
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "author": "awenn2015",
-  "license": "ISC",
-  "dependencies": {
-    "zod": "^3.24.2",
-    "graphql": "^16.10.0",
-    "graphql-tag": "^2.12.6"
-  },
-  "devDependencies": {
-    "vite": "^6.2.3",
-    "typescript": "^5.8.2"
-  }
+  "license": "ISC"
 }

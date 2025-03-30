@@ -133,6 +133,49 @@ const getResolvers = (): IResolvers => ({
       
       return replacement.voting([voting])[0]! as IVoting;
     },
+    authorization: async (_, { payload }, { dataSources }) => {
+      // TODO: Проверить hash
+      
+      const { id, username, hash, photoUrl = null, ...profile } = payload;
+      
+      const candidate = await dataSources.prisma.profile.findUnique({
+        select: { userId: true },
+        where: { telegramId: id,  },
+      });
+      
+      let jwtData: any;
+      let userId: string;
+      
+      /*
+       * TODO: Вынести данные тг в отдельную таблицу с ID = TelegramID ???
+       * TODO: Добавить туда колонку username так как он может отличаться от бдшного
+       */
+      if (candidate) {
+        jwtData = {
+          userId: candidate.userId,
+          // TODO: Данные из профиля, username, avatarUrl и displayName
+        };
+      } else {
+        // TODO: Если есть JWT достаю и смотрю есть ли юзер в бд, если да то связываю
+        const user = await dataSources.prisma.user.create({
+          select: {
+            id: true,
+          },
+          data: {
+            login: username,
+            profile: {
+              create: {
+                ...profile,
+                telegramId: id,
+                avatarUrl: photoUrl,
+              },
+            },
+          },
+        });
+      }
+      
+      // TODO: Next iteration...
+    },
   },
   Query: {
     firstUser: async (_, __, { dataSources: { prisma } }) => {

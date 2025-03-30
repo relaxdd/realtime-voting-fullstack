@@ -1,3 +1,4 @@
+import { Card, CardContent } from '@/components/ui/card.tsx';
 import { Textarea } from '@/components/ui/textarea.tsx';
 import { useAppGlobalContext } from '@/providers/app-global.provider.tsx';
 import language from '@/shared/language.ts';
@@ -9,7 +10,6 @@ import { CreateVotingDocument, ICreateVotingInput } from '@/graphql/generated.ts
 import BackwardHeader from '@/components/backward-header.tsx';
 import { useMutation } from '@apollo/client';
 import { ArrowDown, ArrowUp, Trash } from 'lucide-react';
-import { useEffect } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -57,10 +57,6 @@ const PostPage = () => {
     rules: { minLength: 3, maxLength: 10 },
   });
   
-  useEffect(() => {
-    console.log(form?.formState.errors?.choices?.root);
-  }, [form?.formState.errors?.choices?.root]);
-  
   /*
    * ===================================
    */
@@ -98,116 +94,130 @@ const PostPage = () => {
     <>
       <BackwardHeader title={language.newVoting[lang]} />
       
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmitHandler)}>
-          <FormField
-            name="title"
-            control={form.control}
-            rules={{ required: true }}
-            render={({ field }) => (
-              <FormItem className="mb-6">
-                <FormLabel>{language.title[lang]}</FormLabel>
-                
-                <FormControl>
-                  <Input placeholder="shadcn" {...field} />
-                </FormControl>
-                
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            name="description"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem className="mb-6">
-                <FormLabel>{language.description[lang]}</FormLabel>
-                
-                <FormControl>
-                  <Textarea {...field} />
-                </FormControl>
-                
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          {choices.fields.map((item, i) => (
-            <FormField
-              key={item.id}
-              name={`choices.${i}.label`}
-              control={form.control}
-              rules={{ required: true }}
-              render={({ field }) => {
-                return (
+      <div className="page-wrapper">
+        <div className="page-content">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmitHandler)}>
+              <FormField
+                name="title"
+                control={form.control}
+                rules={{ required: true }}
+                render={({ field }) => (
                   <FormItem className="mb-6">
-                    <FormLabel>{language.choice[lang]} {i + 1}</FormLabel>
+                    <FormLabel>{language.title[lang]}</FormLabel>
                     
-                    <div className="flex flex-row gap-x-3">
-                      <FormControl>
-                        <Input
-                          {...field}
-                        />
-                      </FormControl>
-                      
-                      <div className="flex flex-row gap-x-2">
-                        <Button
-                          type="button"
-                          disabled={i === 0}
-                          onClick={() => choices.swap(i, i - 1)}
-                        >
-                          <ArrowUp />
-                        </Button>
-                        
-                        <Button
-                          type="button"
-                          disabled={i === choices.fields.length - 1}
-                          onClick={() => choices.swap(i, i + 1)}
-                        >
-                          <ArrowDown />
-                        </Button>
-                        
-                        <Button
-                          type="button"
-                          onClick={() => choices.remove(i)}
-                          variant="destructive"
-                          disabled={choices.fields.length < 4}
-                        >
-                          <Trash />
-                        </Button>
-                      </div>
-                    </div>
+                    <FormControl>
+                      <Input placeholder="shadcn" {...field} />
+                    </FormControl>
                     
                     <FormMessage />
                   </FormItem>
-                );
-              }}
-            />
-          ))}
-          
-          <div className="flex flex-row gap-x-3">
-            <Button
-              type="submit"
-              children={language.sendData[lang]}
-              className="font-semibold"
-            />
-            
-            {choices.fields.length < 7 && (
-              <Button
-                type="button"
-                children={language.addYet[lang]}
-                onClick={() => choices.append({ label: '' })}
-                className="font-semibold"
+                )}
               />
-            )}
-          </div>
-        </form>
-      </Form>
-      
-      {loading && (
-        <p>Идет загрузка...</p>
-      )}
+              
+              <FormField
+                name="description"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem className="mb-6">
+                    <FormLabel>{language.description[lang]}</FormLabel>
+                    
+                    <FormControl>
+                      <Textarea {...field} />
+                    </FormControl>
+                    
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <div className="flex flex-col gap-y-4 mb-6">
+                {choices.fields.map((item, i) => (
+                  <FormField
+                    key={item.id}
+                    name={`choices.${i}.label`}
+                    control={form.control}
+                    rules={{ required: true }}
+                    render={({ field }) => {
+                      return (
+                        <FormItem>
+                          <FormLabel>{language.choice[lang]} {i + 1}</FormLabel>
+                          
+                          <div className="flex flex-row gap-x-3">
+                            <FormControl>
+                              <Input
+                                {...field}
+                              />
+                            </FormControl>
+                            
+                            <div className="flex flex-row gap-x-2">
+                              <Button
+                                type="button"
+                                disabled={i === 0}
+                                onClick={() => choices.swap(i, i - 1)}
+                              >
+                                <ArrowUp />
+                              </Button>
+                              
+                              <Button
+                                type="button"
+                                disabled={i === choices.fields.length - 1}
+                                onClick={() => choices.swap(i, i + 1)}
+                              >
+                                <ArrowDown />
+                              </Button>
+                              
+                              <Button
+                                type="button"
+                                onClick={() => choices.remove(i)}
+                                variant="destructive"
+                                disabled={choices.fields.length < 4}
+                              >
+                                <Trash />
+                              </Button>
+                            </div>
+                          </div>
+                          
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
+                  />
+                ))}
+              </div>
+              
+              <div className="flex flex-row gap-x-2">
+                <Button
+                  type="submit"
+                  children={language.sendData[lang]}
+                  className="font-semibold"
+                />
+                
+                {choices.fields.length < 7 && (
+                  <Button
+                    type="button"
+                    children={language.addYet[lang]}
+                    onClick={() => choices.append({ label: '' })}
+                    className="font-semibold"
+                  />
+                )}
+              </div>
+            </form>
+          </Form>
+          
+          {loading && (
+            <p>Идет загрузка...</p>
+          )}
+        </div>
+        
+        <div className="page-sidebar">
+          <Card className="py-5">
+            <CardContent>
+              <h2>Sidebar</h2>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </>
   );
 };

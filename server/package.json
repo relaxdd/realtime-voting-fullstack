@@ -35,7 +35,6 @@
     "yargs": "^17.7.2"
   },
   "devDependencies": {
-    "@rollup/plugin-graphql": "^2.0.5",
     "@total-typescript/ts-reset": "^0.6.1",
     "@types/body-parser": "^1.19.5",
     "@types/cookie-parser": "^1.4.8",
@@ -47,8 +46,7 @@
     "graphql-tools": "^9.0.18",
     "nodemon": "^3.1.9",
     "prisma": "^6.5.0",
-    "vite-node": "^3.0.9",
-    "vite-plugin-graphql-loader": "^4.0.4"
+    "vite-node": "^3.0.9"
   },
   "resolve-path-alias": {
     "alias": {

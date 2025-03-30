@@ -11,20 +11,29 @@
     "shared"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "codegen": "graphql-codegen --config codegen.ts"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/relaxdd/realtime-voting-fullstack.git"
   },
+  "dependencies": {
+    "zod": "^3.24.2",
+    "graphql": "^16.10.0",
+    "graphql-tag": "^2.12.6"
+  },
+  "peerDependencies": {
+    "graphql-sock": "^1.0.0"
+  },
   "devDependencies": {
     "@graphql-codegen/add": "^5.0.3",
-    "@graphql-codegen/client-preset": "4.7.0",
-    "@graphql-codegen/typescript-operations": "4.5.1",
-    "@graphql-codegen/cli": "5.0.5",
-    "@graphql-codegen/typescript": "4.1.6",
-    "@graphql-codegen/introspection": "4.0.3",
-    "@graphql-codegen/typescript-resolvers": "4.4.4"
+    "@graphql-codegen/cli": "^5.0.5",
+    "@graphql-codegen/client-preset": "^4.8.0",
+    "@graphql-codegen/typescript-operations": "^4.6.0",
+    "@graphql-codegen/typescript": "^4.1.6",
+    "@graphql-codegen/introspection": "^4.0.3",
+    "@graphql-codegen/typescript-resolvers": "4.5.0",
+    "vite": "^6.2.3",
+    "typescript": "^5.8.2"
   }
 }

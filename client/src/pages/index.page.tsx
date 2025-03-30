@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader } from '@/components/ui/card.tsx';
+import { Card, CardContent } from '@/components/ui/card.tsx';
 import {
   Select,
   SelectContent,
@@ -15,7 +15,6 @@ import { numDeclineVotes } from '@/shared/helpers.ts';
 import language from '@/shared/language.ts';
 import { useQuery } from '@apollo/client';
 import { Link, useSearchParams } from 'react-router';
-import css from '@/assets/css/pages/index.page.module.css';
 
 const IndexPage = () => {
   const [{ lang }] = useAppGlobalContext();
@@ -33,8 +32,8 @@ const IndexPage = () => {
     <main role="main">
       <h1 className="mt-0! mb-7! leading-[1.2]">{language.allVoting[lang]}</h1>
       
-      <div className={css.wrapper}>
-        <div className={css.content}>
+      <div className="page-wrapper">
+        <div className="page-content">
           <div className="flex flex-col gap-y-4">
             {data.manyVoting.map((post) => (
               <article key={post.id}>
@@ -66,9 +65,9 @@ const IndexPage = () => {
           </div>
         </div>
         
-        <div className={css.sidebar}>
+        <div className="page-sidebar">
           <Card className="py-5">
-            <CardHeader>
+            <CardContent>
               <div className="mb-3">
                 <h2>{language.sidebar[lang]}</h2>
                 <Link to="/post"><small>{language.createNewVoting[lang]}</small></Link>
@@ -112,7 +111,7 @@ const IndexPage = () => {
                   </SelectContent>
                 </Select>
               </div>
-            </CardHeader>
+            </CardContent>
           </Card>
         </div>
       </div>
