@@ -1,4 +1,4 @@
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
+import { PrismaClientKnownRequestError } from '@/generated/prisma/runtime/library'
 import ApiError from './class/ApiError'
 import InternalServerError from './class/InternalServerError'
 import BadRequestError from './class/BadRequestError'

@@ -1,6 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card.tsx';
 import { Textarea } from '@/components/ui/textarea.tsx';
 import { useAppGlobalContext } from '@/providers/app-global.provider.tsx';
+import { useAuthContext } from '@/providers/auth-provider.tsx';
 import language from '@/shared/language.ts';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage, Form } from '@/components/ui/form.tsx';
@@ -11,6 +12,7 @@ import BackwardHeader from '@/components/backward-header.tsx';
 import { useMutation } from '@apollo/client';
 import { ArrowDown, ArrowUp, Trash } from 'lucide-react';
 import { useFieldArray, useForm } from 'react-hook-form';
+import { Navigate } from 'react-router';
 import { z } from 'zod';
 
 const formErrors = {
@@ -27,6 +29,7 @@ const choiceFormSchema = z.object({
 });
 
 const formSchema = z.object({
+  user: z.string().uuid(),
   description: z.string(),
   title: z.string().min(5, { message: formErrors.title.min }),
   choices: z.array(choiceFormSchema).min(3, { message: formErrors.choices.min }),
@@ -35,12 +38,14 @@ const formSchema = z.object({
 type FormFields = z.infer<typeof formSchema>
 
 const PostPage = () => {
+  const { user } = useAuthContext();
   const [{ lang }] = useAppGlobalContext();
   const [createVoting, { loading }] = useMutation(CreateVotingDocument);
   
   const form = useForm<FormFields>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      user: user?.userId,
       title: '',
       description: '',
       choices: [
@@ -88,6 +93,10 @@ const PostPage = () => {
     
     // target.reset();
     // setChoices(defChoices.current);
+  }
+  
+  if (user === null) {
+    return <Navigate to="/login" />;
   }
   
   return (

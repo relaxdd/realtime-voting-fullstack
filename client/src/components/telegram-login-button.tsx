@@ -16,7 +16,7 @@ interface CustomWindow {
   };
 }
 
-declare var window: Window & CustomWindow;
+declare let window: Window & CustomWindow;
 
 interface TelegramLoginButtonProps {
   botName: string,
@@ -36,17 +36,20 @@ const TelegramLoginButton: FC<TelegramLoginButtonProps> = (
   useEffect(() => {
     if (ref.current === null) return;
     
-    if (typeof props?.dataOnauth === 'function') {
+    const isDataOnauth = typeof props?.dataOnauth === 'function';
+    const isDataAuthUrl = typeof props?.dataAuthUrl === 'string';
+    
+    if (isDataOnauth) {
       window.TelegramLoginWidget = {
         dataOnauth: ({ id, hash, username, ...user }) => {
-          return {
+          props.dataOnauth!({
             hash, username,
             id: parseInt(id),
             authDate: user?.auth_date || null,
             firstName: user?.first_name || null,
             lastName: user?.last_name || null,
             photoUrl: user?.photo_url || null,
-          };
+          });
         },
       };
     }
@@ -60,11 +63,16 @@ const TelegramLoginButton: FC<TelegramLoginButtonProps> = (
     script.setAttribute('data-userpic', usePic.toString());
     script.setAttribute('data-telegram-login', props.botName);
     
-    if (typeof props?.dataAuthUrl === 'string') script.setAttribute('data-auth-url', props.dataAuthUrl);
-    else script.setAttribute('data-onauth', 'TelegramLoginWidget.dataOnauth(user)');
+    if (isDataOnauth) {
+      script.setAttribute('data-onauth', 'TelegramLoginWidget.dataOnauth(user)');
+    }
     
-    if (props?.cornerRadius !== undefined) script.setAttribute('data-radius', props.cornerRadius.toString());
+    if (isDataAuthUrl) {
+      script.setAttribute('data-auth-url', props.dataAuthUrl as string);
+    }
+    
     if (props?.requestAccess) script.setAttribute('data-request-access', 'write');
+    if (props?.cornerRadius !== undefined) script.setAttribute('data-radius', props.cornerRadius.toString());
     
     ref.current!.appendChild(script);
   }, [buttonSize, usePic, props]);

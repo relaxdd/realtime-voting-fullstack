@@ -13,3 +13,5 @@ export const AllowedLanguages = {
 
 export type AllowedLanguages = (keyof typeof AllowedLanguages)[]
 export type AllowedLanguage = AllowedLanguages[number]
+
+export const LS_JWT_KEY = 'jwt-token'

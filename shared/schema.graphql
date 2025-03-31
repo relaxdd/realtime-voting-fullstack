@@ -16,7 +16,16 @@ type Query {
     search: String
     isActive: Boolean,
   ): [Voting!]!
+  validateAuth(jwt: String!): JwtPayload
 }
+
+type Mutation {
+  deleteVoting(id: ID!): Boolean!
+  createVoting(payload: CreateVotingInput!): Voting
+  authorization(payload: AuthorizationInput!): String
+}
+
+# ================== Inputs ================== #
 
 input CreateVotingInput {
   title: String!
@@ -33,12 +42,18 @@ input AuthorizationInput {
   firstName: String
   lastName: String
   photoUrl: String
+  authDate: Int!
 }
 
-type Mutation {
-  deleteVoting(id: ID!): Boolean!
-  createVoting(payload: CreateVotingInput!): Voting
-  authorization(payload: AuthorizationInput!): String
+# ================== Types ================== #
+
+type JwtPayload {
+  userId: String!
+  telegramId: Int!
+  username: String!
+  firstName: String
+  lastName: String
+  avatarUrl: String
 }
 
 type User {
@@ -101,6 +116,8 @@ type Answer {
   choiceId: String!
   createdAt: String!
 }
+
+# ================== Enums ================== #
 
 enum AllowedColor {
   RED

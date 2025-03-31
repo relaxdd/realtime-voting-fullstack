@@ -17,6 +17,9 @@
     "type": "git",
     "url": "git+https://github.com/relaxdd/realtime-voting-fullstack.git"
   },
+  "prisma": {
+    "schema": "prisma/schema.prisma"
+  },
   "dependencies": {
     "zod": "^3.24.2",
     "graphql": "^16.10.0",

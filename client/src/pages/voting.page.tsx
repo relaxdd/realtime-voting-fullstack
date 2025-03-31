@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button.tsx';
 import { Card, CardContent, CardFooter } from '@/components/ui/card.tsx';
 import { GetVotingByIdDocument } from '@/graphql/generated.ts';
 import BackwardHeader from '@/components/backward-header.tsx';
+import { useAuthContext } from '@/providers/auth-provider.tsx';
 import WsEventService from '@/shared/services/WsEventService.ts';
 import { useQuery } from '@apollo/client';
 import { FormEvent, useEffect, useMemo, useState } from 'react';
@@ -18,6 +19,7 @@ import { Link, Navigate, useParams } from 'react-router';
 
 const VotingPage = () => {
   const params = useParams<{ id: string }>();
+  const { user } = useAuthContext();
   const [isDisabled, setDisabled] = useState(false);
   const [nowOnline, setNowOnline] = useState(0);
   const [connectionState, setConnectionState] = useState('offline');
@@ -114,7 +116,7 @@ const VotingPage = () => {
                 </CardContent>
                 
                 <CardFooter>
-                  <Button type="submit">Голосовать</Button>
+                  <Button type="submit" disabled={!user}>Голосовать</Button>
                 </CardFooter>
               </Card>
             </form>

@@ -32,7 +32,7 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
     }
   },
   "include": ["./src/**/*.ts", "./src/db.json", "./declarations.d.ts"],

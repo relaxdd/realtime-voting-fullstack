@@ -33,6 +33,7 @@ export type IAnswer = {
 };
 
 export type IAuthorizationInput = {
+  authDate: Scalars['Int']['input'];
   firstName?: InputMaybe<Scalars['String']['input']>;
   hash: Scalars['String']['input'];
   id: Scalars['Int']['input'];
@@ -67,6 +68,16 @@ export type IDateTime = {
   iso: Scalars['String']['output'];
   pretty: Scalars['String']['output'];
   time: Scalars['String']['output'];
+};
+
+export type IJwtPayload = {
+  __typename?: 'JwtPayload';
+  avatarUrl?: Maybe<Scalars['String']['output']>;
+  firstName?: Maybe<Scalars['String']['output']>;
+  lastName?: Maybe<Scalars['String']['output']>;
+  telegramId: Scalars['Int']['output'];
+  userId: Scalars['String']['output'];
+  username: Scalars['String']['output'];
 };
 
 export type IMutation = {
@@ -109,6 +120,7 @@ export type IQuery = {
   hello: Scalars['String']['output'];
   manyVoting: Array<IVoting>;
   oneVoting?: Maybe<IVoting>;
+  validateAuth?: Maybe<IJwtPayload>;
 };
 
 
@@ -122,6 +134,11 @@ export type IQueryManyVotingArgs = {
 
 export type IQueryOneVotingArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type IQueryValidateAuthArgs = {
+  jwt: Scalars['String']['input'];
 };
 
 export type IUser = {
@@ -230,6 +247,7 @@ export type IResolversTypes = {
   DateTime: ResolverTypeWrapper<IDateTime>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
+  JwtPayload: ResolverTypeWrapper<IJwtPayload>;
   Mutation: ResolverTypeWrapper<{}>;
   Profile: ResolverTypeWrapper<IProfile>;
   Query: ResolverTypeWrapper<{}>;
@@ -248,6 +266,7 @@ export type IResolversParentTypes = {
   DateTime: IDateTime;
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
+  JwtPayload: IJwtPayload;
   Mutation: {};
   Profile: IProfile;
   Query: {};
@@ -285,6 +304,16 @@ export type IDateTimeResolvers<ContextType = IApolloContext, ParentType extends 
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type IJwtPayloadResolvers<ContextType = IApolloContext, ParentType extends IResolversParentTypes['JwtPayload'] = IResolversParentTypes['JwtPayload']> = {
+  avatarUrl?: Resolver<Maybe<IResolversTypes['String']>, ParentType, ContextType>;
+  firstName?: Resolver<Maybe<IResolversTypes['String']>, ParentType, ContextType>;
+  lastName?: Resolver<Maybe<IResolversTypes['String']>, ParentType, ContextType>;
+  telegramId?: Resolver<IResolversTypes['Int'], ParentType, ContextType>;
+  userId?: Resolver<IResolversTypes['String'], ParentType, ContextType>;
+  username?: Resolver<IResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type IMutationResolvers<ContextType = IApolloContext, ParentType extends IResolversParentTypes['Mutation'] = IResolversParentTypes['Mutation']> = {
   authorization?: Resolver<Maybe<IResolversTypes['String']>, ParentType, ContextType, RequireFields<IMutationAuthorizationArgs, 'payload'>>;
   createVoting?: Resolver<Maybe<IResolversTypes['Voting']>, ParentType, ContextType, RequireFields<IMutationCreateVotingArgs, 'payload'>>;
@@ -308,6 +337,7 @@ export type IQueryResolvers<ContextType = IApolloContext, ParentType extends IRe
   hello?: Resolver<IResolversTypes['String'], ParentType, ContextType>;
   manyVoting?: Resolver<Array<IResolversTypes['Voting']>, ParentType, ContextType, Partial<IQueryManyVotingArgs>>;
   oneVoting?: Resolver<Maybe<IResolversTypes['Voting']>, ParentType, ContextType, RequireFields<IQueryOneVotingArgs, 'id'>>;
+  validateAuth?: Resolver<Maybe<IResolversTypes['JwtPayload']>, ParentType, ContextType, RequireFields<IQueryValidateAuthArgs, 'jwt'>>;
 };
 
 export type IUserResolvers<ContextType = IApolloContext, ParentType extends IResolversParentTypes['User'] = IResolversParentTypes['User']> = {
@@ -340,6 +370,7 @@ export type IResolvers<ContextType = IApolloContext> = {
   Answer?: IAnswerResolvers<ContextType>;
   Choice?: IChoiceResolvers<ContextType>;
   DateTime?: IDateTimeResolvers<ContextType>;
+  JwtPayload?: IJwtPayloadResolvers<ContextType>;
   Mutation?: IMutationResolvers<ContextType>;
   Profile?: IProfileResolvers<ContextType>;
   Query?: IQueryResolvers<ContextType>;

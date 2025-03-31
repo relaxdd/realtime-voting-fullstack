@@ -1,6 +1,6 @@
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
-import DotEnvService from '../services/DotEnvService'
+import DotEnvService from '../services/dot-env.service'
 import { argvOptions } from '../options'
 import { AppConfig } from '../defines'
 

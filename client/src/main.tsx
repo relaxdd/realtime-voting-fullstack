@@ -10,5 +10,5 @@ createRoot(document.getElementById('root')!).render(
     <ApolloClientProvider>
       <RouterProvider router={router} />
     </ApolloClientProvider>,
-  </AppGlobalProvider>
+  </AppGlobalProvider>,
 );

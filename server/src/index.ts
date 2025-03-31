@@ -1,4 +1,4 @@
-import Application from './Application'
+import Application from './class/Application'
 import initEnvVariables from './shared/named/initEnvVariables'
 
 // TODO: express-session
