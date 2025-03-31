@@ -131,3 +131,4 @@ dist
 
 .idea/
 server/src/generated/
+client/src/graphql/generated.ts
