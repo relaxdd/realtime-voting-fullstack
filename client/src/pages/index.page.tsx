@@ -1,4 +1,4 @@
-import { Card, CardContent } from '@/components/ui/card.tsx';
+import { Card, CardContent } from '@shadcn/card.tsx';
 import {
   Select,
   SelectContent,
@@ -7,17 +7,17 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select.tsx';
+} from '@shadcn/select.tsx';
 import { GetAllActiveVotingDocument } from '@/graphql/generated.ts';
-import { useAppGlobalContext } from '@/providers/app-global.provider.tsx';
-import { TimeConst } from '@/shared/defines.ts';
+import { usePreferencesContext } from '@/providers/preferences.provider.tsx';
+import { AppLinks, TimeConst } from '@/shared/defines.ts';
 import { numDeclineVotes } from '@/shared/helpers.ts';
 import language from '@/shared/language.ts';
 import { useQuery } from '@apollo/client';
 import { Link, useSearchParams } from 'react-router';
 
 const IndexPage = () => {
-  const [{ lang }] = useAppGlobalContext();
+  const [{ lang }] = usePreferencesContext();
   const [searchParams] = useSearchParams();
   
   const { loading, data, error } = useQuery(GetAllActiveVotingDocument, {
@@ -41,8 +41,8 @@ const IndexPage = () => {
                   <CardContent>
                     <header className="flex justify-between">
                       <Link
-                        to={String(post.shortId)}
                         className="inline-block hover:opacity-70"
+                        to={AppLinks.voting.get(String(post.shortId))}
                       >
                         <h2>{post.title}</h2>
                       </Link>
@@ -70,7 +70,7 @@ const IndexPage = () => {
             <CardContent>
               <div className="mb-3">
                 <h2>{language.sidebar[lang]}</h2>
-                <Link to="/post"><small>{language.createNewVoting[lang]}</small></Link>
+                <Link to={AppLinks.post}><small>{language.createNewVoting[lang]}</small></Link>
               </div>
               
               <div className="mb-3">

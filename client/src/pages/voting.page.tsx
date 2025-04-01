@@ -1,16 +1,17 @@
 import '../assets/css/voting.css';
-import { Button } from '@/components/ui/button.tsx';
-import { Card, CardContent, CardFooter } from '@/components/ui/card.tsx';
-import { GetVotingByIdDocument } from '@/graphql/generated.ts';
+import { AppLinks } from '@/shared/defines.ts';
+import { Button } from '@shadcn/button.tsx';
+import { Card, CardContent, CardFooter } from '@shadcn/card.tsx';
+import { GetVotingByIdDocument, UpdateVotingDocument } from '@/graphql/generated.ts';
 import BackwardHeader from '@/components/backward-header.tsx';
 import { useAuthContext } from '@/providers/auth-provider.tsx';
 import WsEventService from '@/shared/services/WsEventService.ts';
-import { useQuery } from '@apollo/client';
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { useMutation, useQuery } from '@apollo/client';
+import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { getPercent, numDeclinePeople, numDeclineVotes } from '@/shared/helpers.ts';
-import { Progress } from '@/components/ui/progress.tsx';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Progress } from '@shadcn/progress.tsx';
+import { Label } from '@shadcn/label';
+import { RadioGroup, RadioGroupItem } from '@shadcn/radio-group';
 import { Link, Navigate, useParams } from 'react-router';
 
 /*
@@ -20,78 +21,101 @@ import { Link, Navigate, useParams } from 'react-router';
 const VotingPage = () => {
   const params = useParams<{ id: string }>();
   const { user } = useAuthContext();
-  const [isDisabled, setDisabled] = useState(false);
+  const [isDisabled] = useState(false);
   const [nowOnline, setNowOnline] = useState(0);
   const [connectionState, setConnectionState] = useState('offline');
   
-  const { data, loading, error, refetch } = useQuery(GetVotingByIdDocument, { variables: { id: params.id! } });
+  const votingById = useQuery(GetVotingByIdDocument, { variables: { id: params.id! } });
+  const updateVoting = useMutation(UpdateVotingDocument);
   
   const choices = useMemo(() => {
-    return data ? (data?.oneVoting?.choices ?? []) : [];
-  }, [data]);
+    return votingById.data ? (votingById.data?.oneVoting?.choices ?? []) : [];
+  }, [votingById.data]);
   
   const total = useMemo(() => {
     return choices.reduce((acc, it) => acc + it.votes, 0);
   }, [choices]);
   
-  function onSubmitHandler(e: FormEvent<HTMLFormElement>) {
+  async function onSubmitHandler(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     
     const formData = new FormData(e.currentTarget);
-    const value = formData.get('voting');
+    const value = String(formData.get('voting'));
     
     if (!value) return;
     
-    // setOptions(prev => prev.map(it => it.value !== value ? it : { ...it, votes: it.votes + 1 }));
-    setDisabled(true);
+    await updateVoting[0]({
+      variables: {
+        input: {
+          votingId: params.id!,
+          choiceName: value,
+        },
+      },
+      onError: (err) => {
+        alert(err?.message);
+      },
+      onCompleted: (data) => {
+        console.log(data?.updateVoting);
+      },
+    });
+    
+    // setDisabled(true);
   }
+  
+  const initEventService = useCallback((service: WsEventService) => {
+    service.onMessage((data) => {
+      switch (data.type) {
+        case 'refresh':
+          setNowOnline(data?.payload);
+          break;
+        case 'update':
+          votingById.refetch().then();
+          break;
+      }
+    });
+    
+    service.onChangeConnectionState((state) => {
+      setConnectionState(state);
+      if (state !== 'online') setNowOnline(0);
+    });
+    
+    service.onClose(() => {
+      setNowOnline(0);
+    });
+  }, [votingById.refetch]);
   
   useEffect(() => {
     const url = import.meta.env?.VITE_WS_CONNECT_URL || '';
     if (!url) return;
     
-    const wsEventService = new WsEventService(`${url}/${params.id!}`, {
-      onMessage(data) {
-        switch (data.type) {
-          case 'refresh':
-            setNowOnline(data?.payload);
-            break;
-          case 'update':
-            refetch().then();
-            break;
-        }
-      },
-      onChangeConnectionState: (state) => {
-        if (error && state === 'online') window.location.reload();
-        setConnectionState(state);
-      },
-    });
+    const wsEventService = new WsEventService(`${url}/${params.id!}`);
+    initEventService(wsEventService);
     
-    function onBeforeunloadHandler() {
+    function testHandler() {
       wsEventService.disconnect();
     }
     
-    window.addEventListener('beforeunload', onBeforeunloadHandler);
+    window.addEventListener('beforeunload', testHandler);
     
     return () => {
       wsEventService.disconnect();
-      window.removeEventListener('beforeunload', onBeforeunloadHandler);
+      window.removeEventListener('beforeunload', testHandler);
     };
-  }, [error]);
+  }, [initEventService, params.id]);
   
-  if (loading) return <h1>Loading data...</h1>;
-  if (error || !data) return <h1>Error loading data</h1>;
-  if (data.oneVoting === null) return <Navigate to="/" />;
+  if (votingById.loading) return <h1>Loading data...</h1>;
+  if (votingById.error || !votingById.data) return <h1>Error loading data</h1>;
+  if (votingById.data.oneVoting === null) return <Navigate to={AppLinks.root} />;
   
   return (
     <>
-      <BackwardHeader title={data.oneVoting?.title} />
+      <BackwardHeader title={votingById.data.oneVoting?.title} />
       
-      {data.oneVoting?.description && (
-        <p>{data.oneVoting.description}</p>
+      {votingById.data.oneVoting?.description && (
+        <p>{votingById.data.oneVoting.description}</p>
       )}
       
-      {!loading && data && (
+      {!votingById.loading && votingById.data && (
         <>
           <div className="flex flex-col gap-5 md:gap-6 items-stretch md:flex-row">
             <form
@@ -137,16 +161,18 @@ const VotingPage = () => {
             </Card>
           </div>
           
-          <div className="mt-6">
-            Всего проголосовало - {numDeclinePeople(total)}
-          </div>
-          
-          <div className="flex gap-2 items-baseline">
-            Сейчас смотрит - {numDeclinePeople(nowOnline)}
+          <div className="mt-6 mb-4">
+            <div>
+              Всего проголосовало | {numDeclinePeople(total)}
+            </div>
             
-            <div className="flex flex-row items-center gap-x-1.5">
-              <span className="circle-status" data-type={connectionState}></span>
-              <small>{connectionState.charAt(0).toUpperCase() + connectionState.slice(1)}</small>
+            <div className="flex gap-2 items-baseline">
+              Сейчас смотрит | {numDeclinePeople(nowOnline)}
+              
+              <div className="flex flex-row items-center gap-x-1.5">
+                <span className="circle-status" data-type={connectionState}></span>
+                <small>{connectionState.charAt(0).toUpperCase() + connectionState.slice(1)}</small>
+              </div>
             </div>
           </div>
           

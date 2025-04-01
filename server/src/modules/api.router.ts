@@ -1,4 +1,3 @@
-
 import { Router } from 'express'
 import votingRouter from './voting/voting.router'
 import NotFoundError from '@/shared/error/class/NotFoundError'

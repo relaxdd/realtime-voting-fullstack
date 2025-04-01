@@ -1,17 +1,29 @@
 export class TimeConst {
-  public static second = 1000
-  public static minute = this.second * 60
-  public static hour = this.minute * 60
-  public static day = this.hour * 24
-  public static week = this.day * 7
+  public static second = 1000;
+  public static minute = this.second * 60;
+  public static hour = this.minute * 60;
+  public static day = this.hour * 24;
+  public static week = this.day * 7;
 }
 
 export const AllowedLanguages = {
   en: 'EN',
   ru: 'RU',
-} as const
+} as const;
 
 export type AllowedLanguages = (keyof typeof AllowedLanguages)[]
 export type AllowedLanguage = AllowedLanguages[number]
 
-export const LS_JWT_KEY = 'jwt-token'
+export const LS_JWT_KEY = 'jwt-token';
+
+export const AppLinks = {
+  root: '/',
+  login: '/auth/login',
+  logout: '/auth/logout',
+  register: '/auth/register',
+  post: '/voting/post',
+  voting: {
+    href: '/voting/:id',
+    get: (id: string) => `/voting/${id}`,
+  },
+} as const;

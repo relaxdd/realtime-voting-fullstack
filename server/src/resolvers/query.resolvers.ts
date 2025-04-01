@@ -14,10 +14,11 @@ const QueryResolvers: IQueryResolvers<IApolloContext> = {
   oneVoting: async (_, args, { dataSources }) => {
     let voting = null;
     
-    if (args.id.length === 20)
+    if (args.id.length === 20) {
       voting = await dataSources.prisma.voting.findFirst({ where: { shortId: args.id } });
-    else
+    } else {
       voting = await dataSources.prisma.voting.findUnique({ where: { id: args.id } });
+    }
     
     if (!voting) return null;
     return Replacement.voting([voting])[0]! as IVoting;

@@ -1,17 +1,17 @@
-import { NextFunction } from 'express';
+import { votingController } from '@/modules/voting/voting.router';
 import * as http from 'http';
-import express, { Express, Response, Request, ErrorRequestHandler } from 'express';
+import express, { Express, Response, Request, NextFunction, ErrorRequestHandler } from 'express';
 import cors from 'cors';
 import { json, urlencoded } from 'body-parser';
 import cookieParser from 'cookie-parser';
-import apiRouter from '../modules/api.router';
-import { IEnvVariables } from '../shared/named/initEnvVariables';
-import { expressMiddleware } from '@apollo/server/express4';
-import { createApollo } from '../apollo';
-import ApiError from '../shared/error/class/ApiError';
-import handlePrismaError from '../shared/error/handlePrismaError';
 import { ZodError } from 'zod';
-import { PrismaClient } from '../generated/prisma';
+import apiRouter from '@/modules/api.router';
+import { createApollo } from '@/apollo';
+import { expressMiddleware } from '@apollo/server/express4';
+import { IEnvVariables } from '@/shared/named/initEnvVariables';
+import handlePrismaError from '@/shared/error/handlePrismaError';
+import ApiError from '@/shared/error/class/ApiError';
+import { PrismaClient } from '@/generated/prisma';
 
 class Application {
   private readonly ENV: IEnvVariables;
@@ -22,6 +22,64 @@ class Application {
     this.ENV = ENV;
     this.app = express();
     this.prisma = new PrismaClient({ datasourceUrl: this.ENV?.PGSQL_URL || '' });
+  }
+  
+  public async start() {
+    const httpServer = http.createServer(this.app);
+    const apolloServer = await createApollo(httpServer);
+    
+    await apolloServer.start();
+    
+    const gqlMiddleware = expressMiddleware(apolloServer, {
+      context: () => ({
+        dataSources: {
+          prisma: this.prisma,
+        },
+        controllers: {
+          voting: votingController,
+        },
+      }),
+    } as any);
+    
+    /*
+     * ==================================
+     */
+    
+    this.trustProxy();
+    this.setupCors();
+    
+    this.app.use(json());
+    this.app.use(cookieParser());
+    this.app.use(urlencoded({ extended: true }));
+    
+    this.app.use('/api/rest', apiRouter);
+    
+    this.app.use(gqlMiddleware as any);
+    this.app.use(this.errorsHandler());
+    
+    /*
+     * ==================================
+     */
+    
+    if (!this.ENV.EXPOSE) {
+      httpServer.listen(this.ENV.PORT, () => {
+        console.log(`[Express]: Server is running at http://localhost:${this.ENV.PORT}`);
+      });
+    } else {
+      httpServer.listen(this.ENV.PORT, '0.0.0.0', () => {
+        import('address').then(({ ip }) => {
+          console.log(`[Express]: Server is running at http://${ip()}:${this.ENV.PORT}`);
+        });
+      });
+    }
+  }
+  
+  /*
+   * ================================
+   */
+  
+  private trustProxy() {
+    this.app.set('trust proxy', true);
   }
   
   private setupCors() {
@@ -42,10 +100,6 @@ class Application {
         }),
       );
     }
-  }
-  
-  private trustProxy() {
-    this.app.set('trust proxy', true);
   }
   
   private errorsHandler(): ErrorRequestHandler {
@@ -85,53 +139,6 @@ class Application {
       
       res.status(status).json(apiError.toObject());
     };
-  }
-  
-  public async start() {
-    const httpServer = http.createServer(this.app);
-    const apolloServer = await createApollo(httpServer);
-    
-    await apolloServer.start();
-    
-    const gqlMiddleware = expressMiddleware(apolloServer, {
-      context: () => ({
-        dataSources: {
-          prisma: this.prisma,
-        },
-      }),
-    } as any);
-    
-    /*
-     * ==================================
-     */
-    
-    this.trustProxy();
-    this.setupCors();
-    
-    this.app.use(json());
-    this.app.use(cookieParser());
-    this.app.use(urlencoded({ extended: true }));
-    
-    this.app.use('/api/rest', apiRouter);
-    
-    this.app.use(gqlMiddleware as any);
-    this.app.use(this.errorsHandler());
-    
-    /*
-     * ==================================
-     */
-    
-    if (!this.ENV.EXPOSE) {
-      httpServer.listen(this.ENV.PORT, () => {
-        console.log(`[Express]: Server is running at http://localhost:${this.ENV.PORT}`);
-      });
-    } else {
-      httpServer.listen(this.ENV.PORT, '0.0.0.0', () => {
-        import('address').then(({ ip }) => {
-          console.log(`[Express]: Server is running at http://${ip()}:${this.ENV.PORT}`);
-        });
-      });
-    }
   }
 }
 

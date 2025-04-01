@@ -16,7 +16,11 @@ const VotingResolvers: IVotingResolvers<IApolloContext> = {
     return Replacement.dateToString(user);
   },
   choices: async (voting, _, { dataSources }) => {
-    const choices = await dataSources.prisma.choice.findMany({ where: { votingId: voting.id } });
+    const choices = await dataSources.prisma.choice.findMany({
+      where: { votingId: voting.id },
+      orderBy: { value: 'asc' },
+    });
+    
     return choices.map(choice => Replacement.dateToString(choice));
   },
   votesNumber: async (voting, _, { dataSources }) => {
@@ -27,6 +31,6 @@ const VotingResolvers: IVotingResolvers<IApolloContext> = {
     
     return choices.reduce((acc, it) => acc + it.votes, 0);
   },
-}
+};
 
 export default VotingResolvers;

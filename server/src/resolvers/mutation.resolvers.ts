@@ -1,6 +1,6 @@
 import { IJwtUserDto } from '@/@types';
 import { IApolloContext } from '@/apollo';
-import { IAuthorizationInput, IJwtPayload, IMutationResolvers, IVoting } from '@/generated/graphql';
+import { IAuthSignInInput, IMutationResolvers, IVoting } from '@/generated/graphql';
 import Replacement from '@/resolvers/replacement';
 import { HARD_USER_ID } from '@/shared/defines';
 import BadRequestError from '@/shared/error/class/BadRequestError';
@@ -21,7 +21,7 @@ interface ICandidate {
   avatarUrl: string | null;
 }
 
-function checkTelegramData(authData: IAuthorizationInput, token: string): boolean {
+function checkTelegramData(authData: IAuthSignInInput, token: string): boolean {
   if (!token) return false;
   
   const { hash: checkHash, ...verifyData } = authData;
@@ -34,13 +34,15 @@ function checkTelegramData(authData: IAuthorizationInput, token: string): boolea
   }
   
   const dataCheckArr = Object.entries(verifyData).reduce<string[]>((acc, [key, value]) => {
-    const snakeKey = camelToSnakeCase(key);
-    acc.push(snakeKey + '=' + String(value));
+    if (value) {
+      const snakeKey = camelToSnakeCase(key);
+      acc.push(snakeKey + '=' + String(value ?? ''));
+    }
+    
     return acc;
   }, []);
   
   dataCheckArr.sort();
-  console.log(dataCheckArr);
   
   const dataCheckString = dataCheckArr.join('\n');
   const secretKey = sha256(token, { binary: true });
@@ -61,14 +63,14 @@ const MutationResolvers: IMutationResolvers<IApolloContext> = {
     
     return true;
   },
-  createVoting: async (_, { payload }, { dataSources }) => {
+  createVoting: async (_, { input }, { dataSources }) => {
     const {
       description,
       choices,
       finishIn,
       isActive,
       ...otherFields
-    } = payload;
+    } = input;
     
     const transformChoices = choices.map(label => ({
       label,
@@ -95,10 +97,26 @@ const MutationResolvers: IMutationResolvers<IApolloContext> = {
     
     return Replacement.voting([voting])[0]! as IVoting;
   },
-  authorization: async (_, { payload }, { dataSources }) => {
+  updateVoting: async (_, { input }, { dataSources, controllers }) => {
+    const choice = await dataSources.prisma.choice.findFirst({
+      where: { value: input.choiceName },
+      select: { id: true, votes: true },
+    });
+    
+    if (!choice) return false;
+    
+    await dataSources.prisma.choice.update({
+      where: { id: choice.id },
+      data: { votes: choice.votes + 1 },
+    });
+    
+    controllers.voting.notify(input.votingId);
+    return true;
+  },
+  authSignIn: async (_, { input }, { dataSources }) => {
     const token = process.env?.['TG_BOT_TOKEN'] || '';
     
-    if (!checkTelegramData(payload, token)) {
+    if (!checkTelegramData(input, token)) {
       throw new BadRequestError('Невалидные данные аутентификации из telegram');
     }
     
@@ -108,7 +126,7 @@ const MutationResolvers: IMutationResolvers<IApolloContext> = {
       photoUrl = null,
       firstName = null,
       lastName = null,
-    } = payload;
+    } = input;
     
     const candidate = await dataSources.prisma.profile.findUnique({
       where: { telegramId },
@@ -130,9 +148,9 @@ const MutationResolvers: IMutationResolvers<IApolloContext> = {
     else {
       const profileData = {
         username,
+        telegramId,
         lastName,
         firstName,
-        telegramId,
         avatarUrl: photoUrl,
       };
       
@@ -151,7 +169,11 @@ const MutationResolvers: IMutationResolvers<IApolloContext> = {
     }
     
     const jwtService = new JwtService(process.env?.['JWT_SECRET_KEY']);
-    return jwtService.sign(jwtData, '1 week');
+    
+    return {
+      user: jwtData,
+      jwt: jwtService.sign(jwtData, '1 week'),
+    };
   },
 };
 

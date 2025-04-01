@@ -1,5 +1,5 @@
 import LocalStorage from '@/shared/class/LocalStorage.ts';
-import { LS_JWT_KEY } from '@/shared/defines.ts';
+import { AppLinks, LS_JWT_KEY } from '@/shared/defines.ts';
 import { IUserDto } from '@realtime-voting/shared/src/@types';
 import * as React from 'react';
 import { useNavigate } from 'react-router';
@@ -42,13 +42,13 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children, data }) => {
   const login = React.useCallback((payload: ILoginPayload) => {
     setUser(payload.user);
     LocalStorage.set(LS_JWT_KEY, payload.jwt);
-    navigate('/');
+    navigate(AppLinks.root);
   }, [navigate]);
   
   const logout = React.useCallback(() => {
     LocalStorage.remove(LS_JWT_KEY);
     setUser(null);
-    navigate('/login');
+    navigate(AppLinks.login);
   }, [navigate]);
   
   return (

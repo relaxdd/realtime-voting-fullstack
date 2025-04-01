@@ -19,13 +19,24 @@ type Query {
   validateAuth(jwt: String!): JwtPayload
 }
 
+type AuthSignInResult {
+  jwt: String!
+  user: JwtPayload!
+}
+
 type Mutation {
   deleteVoting(id: ID!): Boolean!
-  createVoting(payload: CreateVotingInput!): Voting
-  authorization(payload: AuthorizationInput!): String
+  createVoting(input: CreateVotingInput!): Voting
+  updateVoting(input: UpdateVotingInput!): Boolean
+  authSignIn(input: AuthSignInInput!): AuthSignInResult
 }
 
 # ================== Inputs ================== #
+
+input UpdateVotingInput {
+  votingId: String!
+  choiceName: String!
+}
 
 input CreateVotingInput {
   title: String!
@@ -35,14 +46,14 @@ input CreateVotingInput {
   finishIn: String
 }
 
-input AuthorizationInput {
+input AuthSignInInput {
   id: Int!
   hash: String!
+  authDate: Int!
   username: String!
-  firstName: String
   lastName: String
   photoUrl: String
-  authDate: Int!
+  firstName: String
 }
 
 # ================== Types ================== #

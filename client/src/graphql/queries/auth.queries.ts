@@ -28,7 +28,7 @@ export const validateAuthSchema = z.union([
   }),
 ]).transform(it => it || null);
 
-export const verifyJwtPayload = (jwtPayload: IJwtPayload|null|undefined) => {
+export const verifyJwtPayload = (jwtPayload: IJwtPayload | null | undefined) => {
   const result = validateAuthSchema.safeParse(jwtPayload);
   
   if (!result.success || result.error) {

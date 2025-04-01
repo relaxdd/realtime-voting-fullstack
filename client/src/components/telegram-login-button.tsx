@@ -1,6 +1,6 @@
 import { FC, useEffect, useRef } from 'react';
 
-interface TgUser {
+interface TgAuthData {
   id: number,
   hash: string,
   username: string,
@@ -24,7 +24,7 @@ interface TelegramLoginButtonProps {
   cornerRadius?: number,
   buttonSize?: 'large' | 'medium' | 'small'
   dataAuthUrl?: string
-  dataOnauth?: (user: TgUser) => void,
+  dataOnauth?: (user: TgAuthData) => void,
   usePic?: boolean
 }
 
@@ -84,5 +84,5 @@ const TelegramLoginButton: FC<TelegramLoginButtonProps> = (
   );
 };
 
-export { type TgUser };
+export { type TgAuthData };
 export default TelegramLoginButton;

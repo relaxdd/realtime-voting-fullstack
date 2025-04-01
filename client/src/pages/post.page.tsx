@@ -1,13 +1,14 @@
-import { Card, CardContent } from '@/components/ui/card.tsx';
-import { Textarea } from '@/components/ui/textarea.tsx';
-import { useAppGlobalContext } from '@/providers/app-global.provider.tsx';
+import { AppLinks } from '@/shared/defines.ts';
+import { Card, CardContent } from '@shadcn/card.tsx';
+import { Textarea } from '@shadcn/textarea.tsx';
+import { usePreferencesContext } from '@/providers/preferences.provider.tsx';
 import { useAuthContext } from '@/providers/auth-provider.tsx';
 import language from '@/shared/language.ts';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FormControl, FormField, FormItem, FormLabel, FormMessage, Form } from '@/components/ui/form.tsx';
-import { Button } from '@/components/ui/button.tsx';
-import { Input } from '@/components/ui/input.tsx';
-import { CreateVotingDocument, ICreateVotingInput } from '@/graphql/generated.ts';
+import { FormControl, FormField, FormItem, FormLabel, FormMessage, Form } from '@shadcn/form.tsx';
+import { Button } from '@shadcn/button.tsx';
+import { Input } from '@shadcn/input.tsx';
+import { CreateVotingDocument } from '@/graphql/generated.ts';
 import BackwardHeader from '@/components/backward-header.tsx';
 import { useMutation } from '@apollo/client';
 import { ArrowDown, ArrowUp, Trash } from 'lucide-react';
@@ -39,7 +40,7 @@ type FormFields = z.infer<typeof formSchema>
 
 const PostPage = () => {
   const { user } = useAuthContext();
-  const [{ lang }] = useAppGlobalContext();
+  const [{ lang }] = usePreferencesContext();
   const [createVoting, { loading }] = useMutation(CreateVotingDocument);
   
   const form = useForm<FormFields>({
@@ -67,36 +68,34 @@ const PostPage = () => {
    */
   
   async function onSubmitHandler({ description, ...values }: FormFields) {
-    const choices: string[] = [];
+    // const choices: string[] = [];
     
-    const payload: ICreateVotingInput = {
-      ...values,
-      choices,
-      description: description || null,
-    };
+    // const input: ICreateVotingInput = {
+    //   ...values,
+    //   choices,
+    //   description: description || null,
+    // };
+    //
+    // console.log({ description, ...values });
+    // return;
     
-    console.log({ description, ...values });
-    return;
-    
-    await createVoting({
-      variables: {
-        input: payload,
-      },
-      onCompleted: () => {
-        alert('Новое голосование успешно создано');
-      },
-      onError: (err) => {
-        console.error(err.message);
-        alert('Не удалось создать новое голосование');
-      },
-    });
+    // await createVoting({
+    //   variables: { input },
+    //   onCompleted: () => {
+    //     alert('Новое голосование успешно создано');
+    //   },
+    //   onError: (err) => {
+    //     console.error(err.message);
+    //     alert('Не удалось создать новое голосование');
+    //   },
+    // });
     
     // target.reset();
     // setChoices(defChoices.current);
   }
   
   if (user === null) {
-    return <Navigate to="/login" />;
+    return <Navigate to={AppLinks.login} />;
   }
   
   return (

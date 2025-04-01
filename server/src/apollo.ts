@@ -1,6 +1,7 @@
 import http from 'http';
 import { join } from 'path';
 import * as process from 'process';
+import VotingController from '@/modules/voting/voting.controller';
 import MutationResolvers from '@/resolvers/mutation.resolvers';
 import QueryResolvers from '@/resolvers/query.resolvers';
 import UserResolvers from '@/resolvers/user.resolvers';
@@ -14,7 +15,10 @@ import { JsonFileLoader } from '@graphql-tools/json-file-loader';
 
 export interface IApolloContext {
   dataSources: {
-    prisma: PrismaClient
+    prisma: PrismaClient,
+  };
+  controllers: {
+    voting: VotingController,
   };
 }
 
