@@ -1,6 +1,7 @@
-import CustomEmitter from '@/shared/class/CustomEmitter';
-import BadRequestError from '@/shared/error/class/BadRequestError';
-import { Request, Response } from 'express';
+import { RequestWithUser } from '@/modules/api.router';
+import CustomEmitter from '@/shared/class/custom-emitter';
+import BadRequestError from '@/shared/error/api-error/bad-request.error';
+import { Response } from 'express';
 import { v4 as uuid4 } from 'uuid';
 
 class WsVotingEmitter {
@@ -52,18 +53,18 @@ class WsVotingEmitter {
    * ===================================
    */
   
-  public connect(req: Request, res: Response) {
+  public connect(req: RequestWithUser, res: Response) {
     const votingId = req.params?.['id'];
+    const observerId = req?.extraContext?.userId || uuid4();
     
     if (!votingId) {
       throw new BadRequestError('votingId must be provided');
     }
     
-    const observerId = uuid4();
     const handlers = this.getHandlers(res);
     
     res.writeHead(200, {
-      Connection: 'keep-alive',
+      'Connection': 'keep-alive',
       'Content-Type': 'text/event-stream; charset=UTF-8',
       'Cache-Control': 'no-cache',
     });

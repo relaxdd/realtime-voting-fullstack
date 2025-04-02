@@ -1,11 +1,16 @@
+import LocalStorage from '@/shared/class/LocalStorage.ts';
+import { LS_JWT_KEY } from '@/shared/defines.ts';
 import { ApolloClient, ApolloProvider, HttpLink, InMemoryCache } from '@apollo/client';
 import { FC, PropsWithChildren } from 'react';
 
 const IS_DEV = process.env.NODE_ENV === 'development';
 
 const httpLink = new HttpLink({
-  uri: `${import.meta.env.VITE_SERVER_HOST}/api/graphql`,
   // credentials: 'include',
+  uri: `${import.meta.env.VITE_SERVER_HOST}/api/graphql`,
+  headers: {
+    'Authorization': 'Bearer ' + LocalStorage.get(LS_JWT_KEY),
+  },
 });
 
 const apolloClient = new ApolloClient({

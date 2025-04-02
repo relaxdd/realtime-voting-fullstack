@@ -13,3 +13,9 @@ export const updateVotingMutation = gql`
     updateVoting(input: $input)
   }
 `;
+
+export const deleteVotingMutation = gql`
+  mutation DeleteVoting($id: ID!) {
+    deleteVoting(id: $id)
+  }
+`

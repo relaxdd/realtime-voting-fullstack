@@ -1,123 +1,22 @@
-import { IJwtUserDto } from '@/@types';
+import type { ICandidate, IJwtUserDto } from '@/@types';
 import { IApolloContext } from '@/apollo';
-import { IAuthSignInInput, IMutationResolvers, IVoting } from '@/generated/graphql';
+import { IMutationResolvers, IVoting } from '@/generated/graphql';
 import Replacement from '@/resolvers/replacement';
-import { HARD_USER_ID } from '@/shared/defines';
-import BadRequestError from '@/shared/error/class/BadRequestError';
+import GraphQLBadRequestError from '@/shared/error/gql-error/GraphQLBadRequestError';
+import GraphQLForbiddenError from '@/shared/error/gql-error/GraphQLForbiddenError';
+import GraphQLUnauthorizedError from '@/shared/error/gql-error/GraphQLUnauthorizedError';
+import { checkTelegramData } from '@/shared/helpers';
 import JwtService from '@/shared/services/jwt.service';
-import Hex from 'crypto-js/enc-hex';
-import hmacSHA256 from 'crypto-js/hmac-sha256';
-import sha256 from 'crypto-js/sha256';
 import process from 'node:process';
 import { v4 as uuidv4 } from 'uuid';
-import { camelToSnakeCase, translit } from '@realtime-voting/shared/src/utils/string.utils';
-
-interface ICandidate {
-  firstName: string | null;
-  lastName: string | null;
-  username: string;
-  userId: string;
-  telegramId: number;
-  avatarUrl: string | null;
-}
-
-function checkTelegramData(authData: IAuthSignInInput, token: string): boolean {
-  if (!token) return false;
-  
-  const { hash: checkHash, ...verifyData } = authData;
-  const oneWeekInSeconds = 60 * 60 * 24 * 7;
-  const nowDate = Math.round((new Date()).getTime() / 1000);
-  
-  if (nowDate > authData.authDate + oneWeekInSeconds) {
-    // throw new BadRequestError('Outdated auth data.');
-    return false;
-  }
-  
-  const dataCheckArr = Object.entries(verifyData).reduce<string[]>((acc, [key, value]) => {
-    if (value) {
-      const snakeKey = camelToSnakeCase(key);
-      acc.push(snakeKey + '=' + String(value ?? ''));
-    }
-    
-    return acc;
-  }, []);
-  
-  dataCheckArr.sort();
-  
-  const dataCheckString = dataCheckArr.join('\n');
-  const secretKey = sha256(token, { binary: true });
-  const hash = Hex.stringify(hmacSHA256(dataCheckString, secretKey));
-  
-  return checkHash === hash;
-}
+import { translit } from '@realtime-voting/shared/src/utils/string.utils';
 
 const MutationResolvers: IMutationResolvers<IApolloContext> = {
-  deleteVoting: async (_, { id }, { dataSources }) => {
-    const voting = await dataSources.prisma.voting.findUnique({
-      where: { id },
-      select: { userId: true },
-    });
-    
-    if (!voting || HARD_USER_ID !== voting.userId) return false;
-    await dataSources.prisma.voting.delete({ where: { id } });
-    
-    return true;
-  },
-  createVoting: async (_, { input }, { dataSources }) => {
-    const {
-      description,
-      choices,
-      finishIn,
-      isActive,
-      ...otherFields
-    } = input;
-    
-    const transformChoices = choices.map(label => ({
-      label,
-      value: translit(label),
-    }));
-    
-    const shortId = (() => {
-      const uuid = uuidv4();
-      const split = uuid.split('-');
-      return split.at(0)! + split.at(-1)!;
-    })();
-    
-    const voting = await dataSources.prisma.voting.create({
-      data: {
-        shortId,
-        userId: HARD_USER_ID,
-        description: description || null,
-        choices: { createMany: { data: transformChoices } },
-        ...otherFields,
-        ...(finishIn ? { finishIn } : {}),
-        ...(typeof isActive === 'boolean' ? { isActive } : {}),
-      },
-    });
-    
-    return Replacement.voting([voting])[0]! as IVoting;
-  },
-  updateVoting: async (_, { input }, { dataSources, controllers }) => {
-    const choice = await dataSources.prisma.choice.findFirst({
-      where: { value: input.choiceName },
-      select: { id: true, votes: true },
-    });
-    
-    if (!choice) return false;
-    
-    await dataSources.prisma.choice.update({
-      where: { id: choice.id },
-      data: { votes: choice.votes + 1 },
-    });
-    
-    controllers.voting.notify(input.votingId);
-    return true;
-  },
-  authSignIn: async (_, { input }, { dataSources }) => {
+  async authSignIn(_, { input }, { providers }) {
     const token = process.env?.['TG_BOT_TOKEN'] || '';
     
     if (!checkTelegramData(input, token)) {
-      throw new BadRequestError('Невалидные данные аутентификации из telegram');
+      throw new GraphQLBadRequestError('Невалидные данные аутентификации из telegram');
     }
     
     const {
@@ -128,7 +27,7 @@ const MutationResolvers: IMutationResolvers<IApolloContext> = {
       lastName = null,
     } = input;
     
-    const candidate = await dataSources.prisma.profile.findUnique({
+    const candidate = await providers.prisma.profile.findUnique({
       where: { telegramId },
       select: {
         userId: true,
@@ -155,7 +54,7 @@ const MutationResolvers: IMutationResolvers<IApolloContext> = {
       };
       
       // TODO: Если есть JWT достаю и смотрю есть ли юзер в бд, если да то связываю
-      const user = await dataSources.prisma.user.create({
+      const user = await providers.prisma.user.create({
         select: {
           id: true,
         },
@@ -168,12 +67,118 @@ const MutationResolvers: IMutationResolvers<IApolloContext> = {
       jwtData = { ...profileData, userId: user.id };
     }
     
-    const jwtService = new JwtService(process.env?.['JWT_SECRET_KEY']);
+    const jwtService = new JwtService('JWT_SECRET_KEY');
     
     return {
       user: jwtData,
       jwt: jwtService.sign(jwtData, '1 week'),
     };
+  },
+  async deleteVoting(_, { id }, { providers, currentUser }) {
+    if (!currentUser) {
+      throw new GraphQLUnauthorizedError('User is not authenticated');
+    }
+    
+    const voting = await providers.prisma.voting.findUnique({
+      where: { id },
+      select: { id: true, userId: true },
+    });
+    
+    if (!voting) {
+      return true;
+    }
+    
+    if (currentUser !== voting.userId) {
+      throw new GraphQLForbiddenError('Access denied for this user');
+    }
+    
+    await providers.prisma.$transaction([
+      providers.prisma.answer.deleteMany({ where: { votingId: voting.id } }),
+      providers.prisma.choice.deleteMany({ where: { votingId: voting.id } }),
+      providers.prisma.voting.delete({ where: { id: voting.id } }),
+    ]);
+    
+    return true;
+  },
+  async createVoting(_, { input: { user, ...input } }, { providers, currentUser }) {
+    if (!currentUser) {
+      throw new GraphQLUnauthorizedError('User is not authenticated');
+    }
+    
+    if (currentUser !== user) {
+      throw new GraphQLBadRequestError('Passed incorrect userId');
+    }
+    
+    const {
+      description,
+      choices,
+      finishIn,
+      isActive,
+      ...otherFields
+    } = input;
+    
+    const transformChoices = choices.map(label => ({
+      label,
+      value: translit(label),
+    }));
+    
+    const shortId = (() => {
+      const uuid = uuidv4();
+      const split = uuid.split('-');
+      return split.at(0)! + split.at(-1)!;
+    })();
+    
+    const voting = await providers.prisma.voting.create({
+      data: {
+        shortId,
+        userId: currentUser,
+        description: description || null,
+        choices: { createMany: { data: transformChoices } },
+        ...otherFields,
+        ...(finishIn ? { finishIn } : {}),
+        ...(typeof isActive === 'boolean' ? { isActive } : {}),
+      },
+    });
+    
+    return Replacement.voting([voting])[0]! as IVoting;
+  },
+  async updateVoting(_, { input }, { providers, controllers, currentUser }) {
+    if (!currentUser) {
+      throw new GraphQLUnauthorizedError('User is not authenticated');
+    }
+    
+    const choice = await providers.prisma.choice.findFirst({
+      where: { value: input.choiceName },
+      select: { id: true, votes: true },
+    });
+    
+    if (!choice) return false;
+    
+    let answersNumber = await providers.prisma.answer.count({
+      where: { userId: currentUser, votingId: input.votingId },
+    });
+    
+    if (answersNumber !== 0) return false;
+    
+    await providers.prisma.answer.create({
+      data: {
+        userId: currentUser,
+        choiceId: choice.id,
+        votingId: input.votingId,
+      },
+    });
+    
+    answersNumber = await providers.prisma.answer.count({
+      where: { choiceId: choice.id },
+    });
+    
+    await providers.prisma.choice.update({
+      where: { id: choice.id },
+      data: { votes: answersNumber },
+    });
+    
+    controllers.voting.notify(input.shortId);
+    return true;
   },
 };
 

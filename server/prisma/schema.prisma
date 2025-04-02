@@ -50,7 +50,7 @@ model Voting {
 
   shortId     String    @db.VarChar(20)
   title       String    @db.VarChar(191)
-  description String?   @db.VarChar(255)
+  description String?   @db.Text
   isActive    Boolean   @default(true) @db.Boolean
   finishIn    DateTime? @map("finish_in")
 

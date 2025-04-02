@@ -4,6 +4,7 @@ import { AllowedLanguage } from '@/shared/defines.ts';
 const language = {
   search: { ru: 'Поиск', en: 'Search' },
   title: { ru: 'Название', en: 'Title' },
+  finish: { ru: 'Дата окончания', en: 'End date' },
   choice: { ru: 'Вариант', en: 'Choice' },
   sidebar: { ru: 'Сайдбар', en: 'Sidebar' },
   addYet: { ru: 'Добавить', en: 'Add yet' },

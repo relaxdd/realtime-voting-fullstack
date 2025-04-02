@@ -1,8 +1,8 @@
 import { PrismaClientKnownRequestError } from '@/generated/prisma/runtime/library'
-import ApiError from './class/ApiError'
-import InternalServerError from './class/InternalServerError'
-import BadRequestError from './class/BadRequestError'
-import NotFoundError from './class/NotFoundError'
+import ApiError from '@/shared/error/api-error/api.error'
+import InternalServerError from '@/shared/error/api-error/internal-server.error'
+import BadRequestError from '@/shared/error/api-error/bad-request.error'
+import NotFoundError from '@/shared/error/api-error/not-found.error'
 
 function handlePrismaError(err: Error) {
   if (err.name === 'PrismaClientInitializationError') {

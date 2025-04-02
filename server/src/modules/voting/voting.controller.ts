@@ -1,5 +1,4 @@
 import WsVotingEmitter from '@/class/WsVotingEmitter';
-import { IUpdateVotingInput } from '@/generated/graphql';
 import { NextFunction, Request, Response } from 'express';
 
 class VotingController {
@@ -8,10 +7,6 @@ class VotingController {
   public constructor() {
     this.emitter = new WsVotingEmitter();
   }
-  
-  /*
-   * ========================================
-   */
   
   public hi(_: Request, res: Response) {
     res.json({ message: 'Hello world!' });

@@ -3,27 +3,34 @@ import { IQueryResolvers, IUser, IVoting } from '@/generated/graphql';
 import { Prisma } from '@/generated/prisma';
 import Replacement from '@/resolvers/replacement';
 import JwtService from '@/shared/services/jwt.service';
-import * as JWT from 'jsonwebtoken';
-import process from 'node:process';
 
 const QueryResolvers: IQueryResolvers<IApolloContext> = {
-  firstUser: async (_, __, { dataSources: { prisma } }) => {
+  firstUser: async (_, __, { providers: { prisma } }) => {
     const user = await prisma.user.findFirst({ omit: { password: true } });
     return user as unknown as IUser;
   },
-  oneVoting: async (_, args, { dataSources }) => {
+  checkAnswer: async (_, { votingId }, { providers, currentUser }) => {
+    if (!currentUser) return false;
+    
+    const answersNumber = await providers.prisma.answer.count({
+      where: { userId: currentUser, votingId },
+    });
+    
+    return answersNumber !== 0;
+  },
+  oneVoting: async (_, args, { providers }) => {
     let voting = null;
     
     if (args.id.length === 20) {
-      voting = await dataSources.prisma.voting.findFirst({ where: { shortId: args.id } });
+      voting = await providers.prisma.voting.findFirst({ where: { shortId: args.id } });
     } else {
-      voting = await dataSources.prisma.voting.findUnique({ where: { id: args.id } });
+      voting = await providers.prisma.voting.findUnique({ where: { id: args.id } });
     }
     
     if (!voting) return null;
     return Replacement.voting([voting])[0]! as IVoting;
   },
-  manyVoting: async (_, args, { dataSources }) => {
+  manyVoting: async (_, args, { providers }) => {
     const limit = args?.limit || 15;
     const paged = args?.paged || 1;
     const skip = limit * (paged - 1);
@@ -44,7 +51,7 @@ const QueryResolvers: IQueryResolvers<IApolloContext> = {
       });
     }
     
-    const allVoting = await dataSources.prisma.voting.findMany({
+    const allVoting = await providers.prisma.voting.findMany({
       where,
       skip,
       take: limit,
@@ -54,9 +61,7 @@ const QueryResolvers: IQueryResolvers<IApolloContext> = {
     return Replacement.voting(allVoting) as IVoting[];
   },
   validateAuth: (_, { jwt }) => {
-    const jwtService = new JwtService(process.env?.['JWT_SECRET_KEY']);
-    const result = jwtService.verify(jwt);
-    return result !== false ? result : null;
+    return (new JwtService('JWT_SECRET_KEY')).verify(jwt);
   },
 };
 

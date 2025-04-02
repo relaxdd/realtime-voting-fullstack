@@ -1,5 +1,8 @@
 import { AppLinks } from '@/shared/defines.ts';
+import { cn } from '@/shared/libs/utils.ts';
+import { Calendar } from '@shadcn/calendar.tsx';
 import { Card, CardContent } from '@shadcn/card.tsx';
+import { Popover, PopoverContent, PopoverTrigger } from '@shadcn/popover.tsx';
 import { Textarea } from '@shadcn/textarea.tsx';
 import { usePreferencesContext } from '@/providers/preferences.provider.tsx';
 import { useAuthContext } from '@/providers/auth-provider.tsx';
@@ -8,25 +11,22 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage, Form } from '@shadcn/form.tsx';
 import { Button } from '@shadcn/button.tsx';
 import { Input } from '@shadcn/input.tsx';
-import { CreateVotingDocument } from '@/graphql/generated.ts';
+import { CreateVotingDocument, GetAllActiveVotingDocument } from '@/graphql/generated.ts';
 import BackwardHeader from '@/components/backward-header.tsx';
 import { useMutation } from '@apollo/client';
-import { ArrowDown, ArrowUp, Trash } from 'lucide-react';
+import { format } from 'date-fns';
+import { ArrowDown, ArrowUp, CalendarIcon, Trash } from 'lucide-react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { Navigate } from 'react-router';
 import { z } from 'zod';
 
 const formErrors = {
-  title: {
-    min: 'Title must be at least 5 characters.',
-  },
-  choices: {
-    min: 'The number of options must be at least 3.',
-  },
+  title: { min: 'Title must be at least 5 characters.' },
+  choices: { min: 'The number of options must be at least 3.' },
 } as const;
 
 const choiceFormSchema = z.object({
-  label: z.string(),
+  label: z.string().min(3),
 });
 
 const formSchema = z.object({
@@ -34,9 +34,14 @@ const formSchema = z.object({
   description: z.string(),
   title: z.string().min(5, { message: formErrors.title.min }),
   choices: z.array(choiceFormSchema).min(3, { message: formErrors.choices.min }),
+  finishIn: z.date(),
 });
 
 type FormFields = z.infer<typeof formSchema>
+
+/*
+ * =============================
+ */
 
 const PostPage = () => {
   const { user } = useAuthContext();
@@ -49,6 +54,7 @@ const PostPage = () => {
       user: user?.userId,
       title: '',
       description: '',
+      finishIn: new Date(),
       choices: [
         { label: '' },
         { label: '' },
@@ -67,31 +73,32 @@ const PostPage = () => {
    * ===================================
    */
   
-  async function onSubmitHandler({ description, ...values }: FormFields) {
-    // const choices: string[] = [];
+  async function onSubmitHandler({ choices, description, finishIn, ...formFields }: FormFields) {
+    const simpleChoices = choices.map(it => it.label);
     
-    // const input: ICreateVotingInput = {
-    //   ...values,
-    //   choices,
-    //   description: description || null,
-    // };
-    //
-    // console.log({ description, ...values });
-    // return;
+    await createVoting({
+      variables: {
+        input: {
+          ...formFields,
+          choices: simpleChoices,
+          description: description || null,
+          finishIn: finishIn.toISOString(),
+        },
+      },
+      // TODO: Почему то не работает
+      awaitRefetchQueries: true,
+      refetchQueries: [{ query: GetAllActiveVotingDocument, variables: {} }],
+      onCompleted: () => {
+        alert('Новое голосование успешно создано');
+      },
+      onError: (err) => {
+        console.error(err.message);
+        alert('Не удалось создать новое голосование');
+      },
+      
+    });
     
-    // await createVoting({
-    //   variables: { input },
-    //   onCompleted: () => {
-    //     alert('Новое голосование успешно создано');
-    //   },
-    //   onError: (err) => {
-    //     console.error(err.message);
-    //     alert('Не удалось создать новое голосование');
-    //   },
-    // });
-    
-    // target.reset();
-    // setChoices(defChoices.current);
+    form.reset();
   }
   
   if (user === null) {
@@ -133,6 +140,49 @@ const PostPage = () => {
                     <FormControl>
                       <Textarea {...field} />
                     </FormControl>
+                    
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                name="finishIn"
+                control={form.control}
+                rules={{ required: true }}
+                render={({ field }) => (
+                  <FormItem className="mb-6">
+                    <FormLabel>{language.finish[lang]}</FormLabel>
+                    
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              'w-[100%] pl-3 text-left font-normal',
+                              !field.value && 'text-muted-foreground',
+                            )}
+                          >
+                            {field.value ? format(field.value, 'yyyy-MM-dd') : <span>Pick a date</span>}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          lang="RU"
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) => date < new Date()}
+                          onDayFocus={() => {
+                            console.log("TEST");
+                          }}
+                        />
+                      </PopoverContent>
+                    </Popover>
                     
                     <FormMessage />
                   </FormItem>

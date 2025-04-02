@@ -14,12 +14,9 @@ import { loadSchema } from '@graphql-tools/load';
 import { JsonFileLoader } from '@graphql-tools/json-file-loader';
 
 export interface IApolloContext {
-  dataSources: {
-    prisma: PrismaClient,
-  };
-  controllers: {
-    voting: VotingController,
-  };
+  currentUser: string | null;
+  providers: { prisma: PrismaClient };
+  controllers: { voting: VotingController };
 }
 
 const getResolvers = (): IResolvers => ({

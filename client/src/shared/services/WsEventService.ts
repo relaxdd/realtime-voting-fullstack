@@ -1,5 +1,10 @@
+import LocalStorage from '@/shared/class/LocalStorage.ts';
+import { LS_JWT_KEY } from '@/shared/defines.ts';
 import { z } from 'zod';
 import ReconnectEventSource from 'reconnecting-eventsource';
+import { EventSource } from 'eventsource';
+
+// import { fetchEventSource } from '@microsoft/fetch-event-source';
 
 const enum WsServiceState {
   online = 'online',
@@ -79,8 +84,24 @@ class WsEventService {
    */
   
   private createEventSource() {
+    function customFetch() {
+      return {
+        fetch: (input: RequestInfo | URL, init?: RequestInit) => {
+          return fetch(input, {
+            ...init,
+            headers: {
+              ...init?.headers,
+              Authorization: 'Bearer ' + (LocalStorage.get(LS_JWT_KEY) ?? ''),
+            },
+          });
+        },
+      };
+    }
+    
     const source = new ReconnectEventSource(this.url, {
+      ...customFetch(),
       withCredentials: false,
+      eventSourceClass: EventSource,
     });
     
     source.addEventListener('error', this.onErrorHandler.bind(this));

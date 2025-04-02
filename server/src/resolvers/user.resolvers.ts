@@ -3,8 +3,8 @@ import { IUserResolvers } from '@/generated/graphql';
 import Replacement from '@/resolvers/replacement';
 
 const UserResolvers: IUserResolvers<IApolloContext> = {
-  profile: async (user, _, { dataSources }) => {
-    const profile = await dataSources.prisma.profile.findFirst({ where: { userId: user.id } });
+  profile: async (user, _, { providers }) => {
+    const profile = await providers.prisma.profile.findFirst({ where: { userId: user.id } });
     return profile ? Replacement.dateToString(profile) : null;
   },
 }

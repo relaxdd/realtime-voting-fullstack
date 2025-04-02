@@ -1,16 +1,17 @@
-import { votingController } from '@/modules/voting/voting.router';
+import VotingRouter from '@/modules/voting/voting.router';
+import { extractJwtToken, validateJwtAndUser } from '@/shared/helpers';
 import * as http from 'http';
 import express, { Express, Response, Request, NextFunction, ErrorRequestHandler } from 'express';
 import cors from 'cors';
 import { json, urlencoded } from 'body-parser';
 import cookieParser from 'cookie-parser';
 import { ZodError } from 'zod';
-import apiRouter from '@/modules/api.router';
-import { createApollo } from '@/apollo';
+import ApiRouter from '@/modules/api.router';
+import { createApollo, IApolloContext } from '@/apollo';
 import { expressMiddleware } from '@apollo/server/express4';
 import { IEnvVariables } from '@/shared/named/initEnvVariables';
-import handlePrismaError from '@/shared/error/handlePrismaError';
-import ApiError from '@/shared/error/class/ApiError';
+import handlePrismaError from '@/shared/error/handle-prisma.error';
+import ApiError from '@/shared/error/api-error/api.error';
 import { PrismaClient } from '@/generated/prisma';
 
 class Application {
@@ -26,19 +27,28 @@ class Application {
   
   public async start() {
     const httpServer = http.createServer(this.app);
-    const apolloServer = await createApollo(httpServer);
     
+    const apolloServer = await createApollo(httpServer);
     await apolloServer.start();
     
+    const votingRouter = new VotingRouter();
+    const apiRouter = new ApiRouter(this.prisma, { votingRouter });
+    
+    /*
+     * ==================================
+     */
+    
     const gqlMiddleware = expressMiddleware(apolloServer, {
-      context: () => ({
-        dataSources: {
-          prisma: this.prisma,
-        },
-        controllers: {
-          voting: votingController,
-        },
-      }),
+      context: async ({ req }: { req: Request, res: Response }): Promise<IApolloContext> => {
+        const jwt = extractJwtToken(req.headers);
+        const currentUser = await validateJwtAndUser(this.prisma, jwt);
+        
+        return {
+          currentUser,
+          providers: { prisma: this.prisma },
+          controllers: { voting: votingRouter.controller },
+        };
+      },
     } as any);
     
     /*
@@ -52,7 +62,7 @@ class Application {
     this.app.use(cookieParser());
     this.app.use(urlencoded({ extended: true }));
     
-    this.app.use('/api/rest', apiRouter);
+    this.app.use('/api/rest', apiRouter.router);
     
     this.app.use(gqlMiddleware as any);
     this.app.use(this.errorsHandler());

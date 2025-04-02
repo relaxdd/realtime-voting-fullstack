@@ -97,3 +97,13 @@ export const getVotingByIdSchema = votingSchema.pick({
   votesNumber: true,
   choices: true,
 });
+
+/*
+ * =================================
+ */
+
+export const checkAnswerQuery = gql`
+  query CheckAnswer($votingId: String!) {
+    checkAnswer(votingId: $votingId)
+  }
+`

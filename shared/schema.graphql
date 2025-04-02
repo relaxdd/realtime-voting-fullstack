@@ -7,7 +7,6 @@ schema {
 directive @oneOf on INPUT_OBJECT
 
 type Query {
-  hello: String!
   firstUser: User
   oneVoting(id: ID!): Voting
   manyVoting(
@@ -17,6 +16,7 @@ type Query {
     isActive: Boolean,
   ): [Voting!]!
   validateAuth(jwt: String!): JwtPayload
+  checkAnswer(votingId: String!): Boolean!
 }
 
 type AuthSignInResult {
@@ -34,11 +34,13 @@ type Mutation {
 # ================== Inputs ================== #
 
 input UpdateVotingInput {
+  shortId: String!
   votingId: String!
   choiceName: String!
 }
 
 input CreateVotingInput {
+  user: String!
   title: String!
   choices: [String!]!
   description: String

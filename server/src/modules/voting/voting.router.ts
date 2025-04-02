@@ -1,11 +1,17 @@
 import { Router } from 'express';
 import VotingController from './voting.controller';
 
-const votingRouter = Router();
-const votingController = new VotingController();
+class VotingRouter {
+  public readonly router: Router;
+  public readonly controller: VotingController;
+  
+  public constructor() {
+    this.router = Router();
+    this.controller = new VotingController();
+    
+    this.router.get('/', this.controller.hi.bind(this.controller));
+    this.router.get('/connect/:id', this.controller.connect.bind(this.controller));
+  }
+}
 
-votingRouter.get('/', votingController.hi.bind(votingController));
-votingRouter.get('/connect/:id', votingController.connect.bind(votingController));
-
-export { votingController };
-export default votingRouter;
+export default VotingRouter;

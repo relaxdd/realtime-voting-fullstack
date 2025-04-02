@@ -5,5 +5,3 @@ export const AppConfig = {
   // LIMITER_MAX_LIMIT: 100,
   // STAGE: 'DEV',
 } as const
-
-export const HARD_USER_ID = '0bf9ebcf-c1cf-421e-8223-5c4b5fb94c98';

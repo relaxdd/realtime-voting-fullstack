@@ -16,7 +16,10 @@ const BackwardHeader: FC<Props> = (props) => {
   
   return (
     <div className="flex items-center my-0 gap-x-4 mb-7">
-      <Link to={AppLinks.root}><LucideArrowLeft /></Link>
+      <Link to={AppLinks.root} aria-label="Назад к списку">
+        <LucideArrowLeft />
+      </Link>
+      
       <h1 className="m-0! leading-[1.2]">{title}</h1>
     </div>
   );

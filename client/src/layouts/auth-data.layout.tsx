@@ -15,6 +15,11 @@ const AuthDataLayout = () => {
     if (!jwt) return;
     
     fetchData({ variables: { jwt } })
+      // .then(({ data }) => {
+      //   // if (!data?.validateAuth) {
+      //   //   LocalStorage.remove(LS_JWT_KEY);
+      //   // }
+      // })
       .catch((err) => {
         console.error(err);
       });

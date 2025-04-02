@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon --watch \"src/**\" --ext \"ts,json\" --ignore \"src/**/*.spec.ts\" --exec \"vite-node src/index.ts --mode development --expose\"",
+    "dev": "nodemon --watch \"src/**\" --ext \"ts,json\" --ignore \"src/**/*.spec.ts\" --exec \"vite-node src/index.ts --mode development\"",
     "build": "tsc -b && vite build",
     "dev:build": "nodemon --watch \"dist\" --exec \"dist/index.es.js --mode development\"",
     "build:dev": "vite build --watch --mode development",

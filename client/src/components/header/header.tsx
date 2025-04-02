@@ -10,7 +10,7 @@ const Header = () => {
       <div className="container">
         <div className="py-4 flex flex-row justify-between items-center">
           <div>
-            <Link to={AppLinks.root} className="text-[20px]">RealTime Voting</Link>
+            <Link to={AppLinks.root} className="text-[20px] text-[#ad1619]">RealTime Voting</Link>
           </div>
           
           <div className="flex flex-row items-center gap-x-4">
