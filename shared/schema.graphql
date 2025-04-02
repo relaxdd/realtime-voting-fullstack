@@ -10,10 +10,10 @@ type Query {
   firstUser: User
   oneVoting(id: ID!): Voting
   manyVoting(
-    limit: Int,
-    paged: Int,
+    limit: Int
+    paged: Int
     search: String
-    isActive: Boolean,
+    isActive: Boolean
   ): [Voting!]!
   validateAuth(jwt: String!): JwtPayload
   checkAnswer(votingId: String!): Boolean!

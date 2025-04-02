@@ -38,8 +38,8 @@ const votingSchema = z.object({
  */
 
 export const getAllActiveVotingQuery = gql`
-  query GetAllActiveVoting($search: String) {
-    manyVoting(isActive: true, search: $search) {
+  query GetAllActiveVoting($paged: Int, $limit: Int, $search: String) {
+    manyVoting(isActive: true, paged: $paged, limit: $limit, search: $search) {
       id
       shortId
       title

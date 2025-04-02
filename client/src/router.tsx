@@ -4,7 +4,7 @@ import ErrorPage from '@/pages/error.page.tsx';
 import LogoutPage from '@/pages/logout.page.tsx';
 import { AppLinks } from '@/shared/defines.ts';
 import { createBrowserRouter } from 'react-router';
-import IndexPage from './pages/index.page.tsx';
+import HomePage from './pages/home.page.tsx';
 import LoginPage from './pages/login.page.tsx';
 import NotFoundPage from './pages/not-found.page.tsx';
 import PostPage from './pages/post.page.tsx';
@@ -16,7 +16,7 @@ const router = createBrowserRouter([{
   children: [{
     Component: AppRootLayout,
     children: [
-      { path: AppLinks.root, Component: IndexPage },
+      { path: AppLinks.root, Component: HomePage },
       { path: AppLinks.login, Component: LoginPage },
       { path: AppLinks.logout, Component: LogoutPage },
       { path: AppLinks.post, Component: PostPage },
