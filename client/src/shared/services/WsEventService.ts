@@ -57,6 +57,7 @@ class WsEventService {
       z.object({ type: z.literal('refresh'), payload: z.number().int().min(0) }),
       z.object({ type: z.literal('connect'), payload: z.never().optional() }),
       z.object({ type: z.literal('update'), payload: z.never().optional() }),
+      z.object({ type: z.literal('completed'), payload: z.never().optional() }),
     ]);
   }
   

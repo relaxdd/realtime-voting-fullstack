@@ -76,6 +76,7 @@ class WsVotingEmitter {
     this.emitter.on(handlers.close.name, handlers.close.fn);
     this.emitter.on(handlers.update.name, handlers.update.fn);
     this.emitter.on(handlers.refresh.name, handlers.refresh.fn);
+    this.emitter.on(handlers.completed.name, handlers.completed.fn);
     
     this.emitter.add(observerId);
     this.addToRoom(votingId, observerId);
@@ -89,6 +90,7 @@ class WsVotingEmitter {
       this.emitter.off(handlers.close.name, handlers.close.fn);
       this.emitter.off(handlers.update.name, handlers.update.fn);
       this.emitter.off(handlers.refresh.name, handlers.refresh.fn);
+      this.emitter.off(handlers.completed.name, handlers.completed.fn);
       
       this.emitter.remove(observerId);
       this.removeFromRoom(votingId, observerId);
@@ -103,6 +105,7 @@ class WsVotingEmitter {
       close: 'close',
       update: 'update',
       refresh: 'refresh',
+      completed: 'completed',
     };
     
     function event(event: string) {
@@ -132,6 +135,12 @@ class WsVotingEmitter {
         name: names.refresh,
         fn: (msg: number) => {
           res.write(message({ type: names.refresh, payload: msg }));
+        },
+      },
+      completed: {
+        name: names.completed,
+        fn: () => {
+          res.write(message({ type: names.completed }));
         },
       },
     };

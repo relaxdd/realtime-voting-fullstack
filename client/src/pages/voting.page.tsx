@@ -2,7 +2,13 @@ import '../assets/css/voting.css';
 import { AppLinks } from '@/shared/defines.ts';
 import { Button } from '@shadcn/button.tsx';
 import { Card, CardContent, CardFooter } from '@shadcn/card.tsx';
-import { CheckAnswerDocument, DeleteVotingDocument, GetVotingByIdDocument, UpdateVotingDocument } from '@/graphql/generated.ts';
+import {
+  CheckAnswerDocument,
+  CompleteVotingDocument,
+  DeleteVotingDocument,
+  GetVotingByIdDocument,
+  UpdateVotingDocument,
+} from '@/graphql/generated.ts';
 import BackwardHeader from '@/components/backward-header.tsx';
 import { useAuthContext } from '@/providers/auth-provider.tsx';
 import WsEventService from '@/shared/services/WsEventService.ts';
@@ -28,11 +34,17 @@ const VotingPage = () => {
   
   const deleteVoting = useMutation(DeleteVotingDocument);
   const updateVoting = useMutation(UpdateVotingDocument);
+  const completeVoting = useMutation(CompleteVotingDocument);
+  
   const votingById = useQuery(GetVotingByIdDocument, { variables: { id: params.id! } });
   
   const votingId = useMemo(() => {
     return votingById?.data?.oneVoting?.id || null;
-  }, [votingById?.data?.oneVoting]);
+  }, [votingById?.data?.oneVoting?.id]);
+  
+  const isActive = useMemo(() => {
+    return votingById?.data?.oneVoting?.isActive || false;
+  }, [votingById?.data?.oneVoting?.isActive]);
   
   const checkAnswer = useQuery(CheckAnswerDocument, {
     skip: !votingId,
@@ -44,6 +56,12 @@ const VotingPage = () => {
    */
   
   const initEventService = useCallback((service: WsEventService) => {
+    service.onConnect(() => {
+      if (typeof checkAnswer?.data?.checkAnswer === 'boolean') {
+        setDisabled(Boolean(checkAnswer.data.checkAnswer));
+      }
+    });
+    
     service.onMessage((data) => {
       switch (data.type) {
         case 'refresh':
@@ -52,40 +70,52 @@ const VotingPage = () => {
         case 'update':
           votingById.refetch().then();
           break;
+        case 'completed':
+          alert('Голосование было завершено.');
+          setDisabled(true);
+          break;
       }
     });
     
     service.onChangeConnectionState((state) => {
       setConnectionState(state);
-      if (state !== 'online') setNowOnline(0);
+      
+      if (state !== 'online') {
+        setNowOnline(0);
+        setDisabled(true);
+      }
     });
     
     service.onClose(() => {
       setNowOnline(0);
+      setDisabled(true);
     });
-  }, [votingById.refetch]);
+  }, [checkAnswer?.data?.checkAnswer, votingById.refetch]);
   
   useEffect(() => {
     const url = import.meta.env?.VITE_WS_CONNECT_URL || '';
     if (!url) return;
     
+    const isActive = votingById?.data?.oneVoting?.isActive || false;
+    if (!isActive) return;
+    
     const wsEventService = new WsEventService(`${url}/${params.id!}`);
     initEventService(wsEventService);
     
-    function testHandler() {
+    function beforeUnloadHandler() {
       wsEventService.disconnect();
     }
     
-    window.addEventListener('beforeunload', testHandler);
+    window.addEventListener('beforeunload', beforeUnloadHandler);
     
     return () => {
       wsEventService.disconnect();
-      window.removeEventListener('beforeunload', testHandler);
+      window.removeEventListener('beforeunload', beforeUnloadHandler);
     };
-  }, [initEventService, params.id]);
+  }, [votingById?.data?.oneVoting?.isActive, initEventService, params.id]);
   
   useEffect(() => {
-    if (!checkAnswer) return;
+    if (!checkAnswer?.data) return;
     
     if (typeof checkAnswer?.data?.checkAnswer === 'boolean') {
       setDisabled(Boolean(checkAnswer.data.checkAnswer));
@@ -157,6 +187,33 @@ const VotingPage = () => {
     });
   }
   
+  async function onCompleteHandler(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    
+    const formData = new FormData(e.currentTarget);
+    const votingId = String(formData.get('votingId') ?? '');
+    
+    if (!votingId) {
+      alert('Неопределённая ошибка, попробуйте позже');
+      return;
+    }
+    
+    const message = 'Вы уверены что хотите завершить это голосование?';
+    if (!window.confirm(message)) return;
+    
+    await completeVoting[0]({
+      variables: { id: votingId },
+      onError: (err) => {
+        alert(err?.message);
+      },
+      onCompleted: ({ completeVoting }) => {
+        if (completeVoting) {
+          setDisabled(true);
+        }
+      },
+    });
+  }
+  
   /*
    * =======================================
    */
@@ -219,7 +276,7 @@ const VotingPage = () => {
                     </CardContent>
                     
                     <CardFooter>
-                      <Button type="submit" disabled={!user}>Голосовать</Button>
+                      <Button type="submit" disabled={!user || isDisabled || isActive}>Голосовать</Button>
                     </CardFooter>
                   </Card>
                 </form>
@@ -276,9 +333,19 @@ const VotingPage = () => {
               </div>
               
               {isOwner && (
-                <Button
-                  children="Завершить голосование"
-                />
+                <>
+                  {isActive
+                    ? (
+                      <form onSubmit={onCompleteHandler}>
+                        <input type="hidden" name="votingId" value={String(votingId ?? '')} />
+                        <Button type="submit" children="Завершить голосование" />
+                      </form>
+                    )
+                    : (
+                      <Button type="button" children="Голосование завершено" disabled />
+                    )
+                  }
+                </>
               )}
             </CardContent>
           </Card>

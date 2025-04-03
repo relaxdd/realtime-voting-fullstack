@@ -12,8 +12,13 @@ class VotingController {
     res.json({ message: 'Hello world!' });
   }
   
-  public notify(votingId: string) {
-    this.emitter.broadcastRoom('update', votingId);
+  public notify(votingShortId: string) {
+    this.emitter.broadcastRoom('update', votingShortId);
+  }
+  
+  public completed(votingShortId: string) {
+    this.emitter.broadcastRoom('completed', votingShortId);
+    this.emitter.broadcastRoom('close', votingShortId);
   }
   
   public connect(req: Request, res: Response, next: NextFunction) {

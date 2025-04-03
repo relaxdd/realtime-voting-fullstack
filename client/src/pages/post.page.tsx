@@ -17,7 +17,7 @@ import { useMutation } from '@apollo/client';
 import { format } from 'date-fns';
 import { ArrowDown, ArrowUp, CalendarIcon, Trash } from 'lucide-react';
 import { useFieldArray, useForm } from 'react-hook-form';
-import { Navigate } from 'react-router';
+import { Navigate, useNavigate } from 'react-router';
 import { z } from 'zod';
 
 const formErrors = {
@@ -44,6 +44,7 @@ type FormFields = z.infer<typeof formSchema>
  */
 
 const PostPage = () => {
+  const navigate = useNavigate();
   const { user } = useAuthContext();
   const [{ lang }] = usePreferencesContext();
   const [createVoting, { loading }] = useMutation(CreateVotingDocument);
@@ -87,9 +88,14 @@ const PostPage = () => {
       },
       // TODO: Почему то не работает
       awaitRefetchQueries: true,
-      refetchQueries: [{ query: GetAllActiveVotingDocument, variables: {} }],
-      onCompleted: () => {
-        alert('Новое голосование успешно создано');
+      refetchQueries: [
+        { query: GetAllActiveVotingDocument },
+      ],
+      onCompleted: ({ createVoting }) => {
+        if (createVoting) {
+          alert('Новое голосование успешно создано');
+          navigate(AppLinks.voting.get(createVoting.shortId));
+        }
       },
       onError: (err) => {
         console.error(err.message);
@@ -178,7 +184,7 @@ const PostPage = () => {
                           onSelect={field.onChange}
                           disabled={(date) => date < new Date()}
                           onDayFocus={() => {
-                            console.log("TEST");
+                            console.log('TEST');
                           }}
                         />
                       </PopoverContent>

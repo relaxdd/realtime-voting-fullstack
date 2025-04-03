@@ -55,27 +55,13 @@ export const getAllActiveVotingQuery = gql`
   }
 `;
 
-export const getAllActiveVotingSchema = z.array(votingSchema.pick({
-  id: true,
-  title: true,
-  shortId: true,
-  isActive: true,
-  authorId: true,
-  createdAt: true,
-  description: true,
-  votesNumber: true,
-}));
-
-/*
- * =================================
- */
-
 export const getVotingByIdQuery = gql`
   query GetVotingById($id: ID!) {
     oneVoting(id: $id) {
       id
       title
       description
+      isActive
       authorId
       votesNumber
       choices {
@@ -87,20 +73,6 @@ export const getVotingByIdQuery = gql`
     }
   }
 `;
-
-export const getVotingByIdSchema = votingSchema.pick({
-  id: true,
-  title: true,
-  description: true,
-  authorId: true,
-  createdAt: true,
-  votesNumber: true,
-  choices: true,
-});
-
-/*
- * =================================
- */
 
 export const checkAnswerQuery = gql`
   query CheckAnswer($votingId: String!) {

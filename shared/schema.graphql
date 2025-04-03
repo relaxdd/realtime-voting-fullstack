@@ -26,6 +26,7 @@ type AuthSignInResult {
 
 type Mutation {
   deleteVoting(id: ID!): Boolean!
+  completeVoting(id: ID!): Boolean!
   createVoting(input: CreateVotingInput!): Voting
   updateVoting(input: UpdateVotingInput!): Boolean
   authSignIn(input: AuthSignInInput!): AuthSignInResult

@@ -9,7 +9,7 @@ import { useQuery } from '@apollo/client';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router';
 
-const HARD_LIMIT = 2;
+const HARD_LIMIT = 20;
 
 const HomePage = () => {
   const [{ lang }] = usePreferencesContext();

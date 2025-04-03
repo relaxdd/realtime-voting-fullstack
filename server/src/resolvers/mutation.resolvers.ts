@@ -74,14 +74,14 @@ const MutationResolvers: IMutationResolvers<IApolloContext> = {
       jwt: jwtService.sign(jwtData, '1 week'),
     };
   },
-  async deleteVoting(_, { id }, { providers, currentUser }) {
+  async deleteVoting(_, { id }, { providers, controllers, currentUser }) {
     if (!currentUser) {
       throw new GraphQLUnauthorizedError('User is not authenticated');
     }
     
     const voting = await providers.prisma.voting.findUnique({
       where: { id },
-      select: { id: true, userId: true },
+      select: { id: true, shortId: true, userId: true },
     });
     
     if (!voting) {
@@ -98,6 +98,7 @@ const MutationResolvers: IMutationResolvers<IApolloContext> = {
       providers.prisma.voting.delete({ where: { id: voting.id } }),
     ]);
     
+    controllers.voting.completed(voting.shortId);
     return true;
   },
   async createVoting(_, { input: { user, ...input } }, { providers, currentUser }) {
@@ -178,6 +179,32 @@ const MutationResolvers: IMutationResolvers<IApolloContext> = {
     });
     
     controllers.voting.notify(input.shortId);
+    return true;
+  },
+  async completeVoting(_, { id }, { providers, controllers, currentUser }) {
+    if (!currentUser) {
+      throw new GraphQLUnauthorizedError('User is not authenticated');
+    }
+    
+    const voting = await providers.prisma.voting.findUnique({
+      where: { id },
+      select: { id: true, shortId: true, userId: true },
+    });
+    
+    if (!voting) {
+      return false;
+    }
+    
+    if (voting.userId !== currentUser) {
+      throw new GraphQLForbiddenError('Access denied for this user');
+    }
+    
+    await providers.prisma.voting.update({
+      where: { id: voting.id },
+      data: { isActive: false, finishIn: new Date() },
+    });
+    
+    controllers.voting.completed(voting.shortId);
     return true;
   },
 };
