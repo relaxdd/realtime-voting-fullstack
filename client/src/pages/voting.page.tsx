@@ -28,6 +28,7 @@ const VotingPage = () => {
   const navigate = useNavigate();
   const { user } = useAuthContext();
   const [isDisabled, setDisabled] = useState(true);
+  const [isActive, setActive] = useState(false);
   const params = useParams<{ id: string }>();
   const [nowOnline, setNowOnline] = useState(0);
   const [connectionState, setConnectionState] = useState('offline');
@@ -41,10 +42,6 @@ const VotingPage = () => {
   const votingId = useMemo(() => {
     return votingById?.data?.oneVoting?.id || null;
   }, [votingById?.data?.oneVoting?.id]);
-  
-  const isActive = useMemo(() => {
-    return votingById?.data?.oneVoting?.isActive || false;
-  }, [votingById?.data?.oneVoting?.isActive]);
   
   const checkAnswer = useQuery(CheckAnswerDocument, {
     skip: !votingId,
@@ -73,6 +70,7 @@ const VotingPage = () => {
         case 'completed':
           alert('Голосование было завершено.');
           setDisabled(true);
+          votingById.refetch().then();
           break;
       }
     });
@@ -113,6 +111,10 @@ const VotingPage = () => {
       window.removeEventListener('beforeunload', beforeUnloadHandler);
     };
   }, [votingById?.data?.oneVoting?.isActive, initEventService, params.id]);
+  
+  useEffect(() => {
+    setActive(Boolean(votingById?.data?.oneVoting?.isActive || false));
+  }, [votingById?.data?.oneVoting?.isActive]);
   
   useEffect(() => {
     if (!checkAnswer?.data) return;
@@ -334,17 +336,17 @@ const VotingPage = () => {
               
               {isOwner && (
                 <>
-                  {isActive
-                    ? (
-                      <form onSubmit={onCompleteHandler}>
-                        <input type="hidden" name="votingId" value={String(votingId ?? '')} />
-                        <Button type="submit" children="Завершить голосование" />
-                      </form>
-                    )
-                    : (
-                      <Button type="button" children="Голосование завершено" disabled />
-                    )
-                  }
+                {isActive
+                  ? (
+                    <form onSubmit={onCompleteHandler}>
+                      <input type="hidden" name="votingId" value={String(votingId ?? '')} />
+                      <Button type="submit" children="Завершить голосование" />
+                    </form>
+                  )
+                  : (
+                    <Button type="button" children="Голосование завершено" disabled />
+                  )
+                }
                 </>
               )}
             </CardContent>
