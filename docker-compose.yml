@@ -1,0 +1,51 @@
+name: realtime-voting-fullstack
+
+services:
+  nginx:
+    build: ./client
+    image: rvf-nginx
+    container_name: rvf_nginx
+    restart: unless-stopped
+    depends_on:
+      - backend
+    links:
+      - backend
+    ports:
+      - '80:80'
+    volumes:
+      - app_data:/app
+      - ./client/src:/app/client/src
+      - ./conf/nginx/conf.d:/etc/nginx/conf.d
+    environment:
+      VITE_SERVER_HOST: ${VITE_SERVER_HOST}
+      VITE_WS_CONNECT_URL: ${VITE_WS_CONNECT_URL}
+    networks:
+      - app_network
+
+  backend:
+    image: rvf-backend
+    container_name: rvf_backend
+    build: ./server
+    volumes:
+      - app_data:/app
+      - ./server/src:/app/server/src
+    environment:
+      NODE_ENV: production
+      PGSQL_URL: ${PGSQL_URL}
+      ALLOW_ORIGIN: ${ALLOW_ORIGIN}
+      TG_BOT_TOKEN: ${TG_BOT_TOKEN}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      
+    networks:
+      - app_network
+    # command: >
+    #   sh -c "pm2-runtime start \"node deploy/app.bundle.js --mode production --stage demo --subdomain dom --is-deploy\""
+
+volumes:
+  app_data:
+
+networks:
+  app_network:
+    driver: bridge
+
+  
